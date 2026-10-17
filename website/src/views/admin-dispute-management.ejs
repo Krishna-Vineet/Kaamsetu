@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu Admin - Dispute Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-dispute-management.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/1.png" alt="KaamSetu Logo" style="height:40px;width:40px;vertical-align:middle;margin-right:8px;border-radius:8px;cursor: pointer;" />
+            KaamSetu Admin
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/admin/dashboard/<%= adminId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/admin/users/<%= adminId %>"><i class="fas fa-users"></i>User Management</a></li>
+            <li><a href="/admin/payments/<%= adminId %>"><i class="fas fa-money-bill-wave"></i>Payment Management</a></li>
+            <li><a href="/admin/disputes/<%= adminId %>" class="active"><i class="fas fa-gavel"></i>Dispute Management</a></li>
+            <li><a href="/admin/jobs/<%= adminId %>"><i class="fas fa-briefcase"></i>Job Management</a></li>
+        </ul>
+    </nav>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>Dispute Management</h1>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search disputes...">
+            <button class="btn btn-primary">Search</button>
+        </div>
+
+        <div class="user-table">
+            <% if (disputes && disputes.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Dispute ID</th>
+                        <th>Job ID</th>
+                        <th>Client Name</th>
+                        <th>Labor Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% disputes.forEach((dispute) => { %>
+                    <tr>
+                        <td><%= dispute.DisputeId %></td>
+                        <td><%= dispute.JobId %></td>
+                        <td><%= dispute.ClientName %></td>
+                        <td><%= dispute.LaborName %></td>
+                        <td><%= dispute.Title %></td>
+                        <td><span class="status <%= dispute.Status %>"><%= dispute.Status %></span></td>
+                        <td class="actions">
+                            <button class="btn-icon" onclick="showDetail(`<%= dispute.Title, dispute.Description, dispute.Date %>`)" title="View Details">
+                                <i class="fas fa-info"></i>
+                            </button>
+                            <button class="btn-icon" title="Call Client"><i class="fas fa-phone"></i></button>
+                            <button class="btn-icon" title="Email Client"><i class="fas fa-envelope"></i></button>
+                            <button class="btn-icon" title="Block Client"><i class="fas fa-ban"></i></button>
+                            <button class="btn-icon" title="Mark Resolved"><i class="fas fa-check"></i></button>
+                        </td>
+                    </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h2>No Disputes Found</h2>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Detail Modal -->
+    <div class="detail-modal" id="detailModal">
+        
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 KaamSetu Admin Panel. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/admin-dispute-management.js"></script>
+</body>
+</html>

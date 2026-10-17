@@ -1,0 +1,13 @@
+# Allow all web crawlers to access all content
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://kaamsetu.co.in/sitemap.xml
+
+# Disallow crawling of admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+
+# Crawl-delay: 10  # Uncomment and adjust if needed to prevent server overload

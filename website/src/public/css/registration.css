@@ -1,0 +1,144 @@
+:root {
+    --primary-color: #00978A;
+    --secondary-color: #465FA2;
+    --light-gray: #f4f4f4;
+    --dark-gray: #333;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: var(--light-gray);
+    line-height: 1.6;
+    color: var(--dark-gray);
+}
+
+.container {
+    width: 90%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 0;
+}
+
+.registration-wrapper {
+    display: flex;
+    background-color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.registration-info {
+    flex-basis: 40%;
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.icons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 2rem;
+    margin-bottom: 1rem;
+
+    img {
+        max-width: 80px;
+        aspect-ratio: 1/1;
+        border-radius: 50%;
+        object-fit: cover;
+        flex: 1;
+    }
+}
+
+.registration-form {
+    flex-basis: 60%;
+    padding: 2rem;
+}
+
+.registration-info h2 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.registration-info p {
+    margin-bottom: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.form-group select {
+    appearance: none;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 1rem;
+    background-color: var(--secondary-color);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+}
+
+.skills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-checkbox {
+    display: none;
+}
+
+.skill-label {
+    background-color: var(--light-gray);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.skill-checkbox:checked + .skill-label {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
+@media (max-width: 768px) {
+    .registration-wrapper {
+        flex-direction: column;
+    }
+
+    .registration-info,
+    .registration-form {
+        flex-basis: 100%;
+    }
+}

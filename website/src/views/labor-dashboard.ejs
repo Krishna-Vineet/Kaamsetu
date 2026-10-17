@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Labor Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/labor-dashboard.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="cursor: pointer;height:40px;vertical-align:middle;margin-right:10px;">
+            KaamSetu Labour
+        </div>
+        <a href="/logout" class="logout-btn" style="margin-left:auto; color:#fff; background:#00978A; padding:8px 16px; border-radius:4px; text-decoration:none; font-weight:600;">Logout <i class="fas fa-sign-out-alt"></i></a>
+    </header>
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/labor/dashboard/<%= laborId %>" class="active"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/labor/available-jobs/<%= laborId %>"><i class="fas fa-briefcase"></i>Available Jobs</a></li>
+            <li><a href="/labor/past-jobs/<%= laborId %>"><i class="fas fa-history"></i>Past Jobs</a></li>
+            <li><a href="/labor/payment/<%= laborId %>"><i class="fas fa-money-bill-wave"></i>Payments</a></li>
+            <li><a href="/labor/profile/<%= laborId %>"><i class="fas fa-user"></i>Profile</a></li>
+        </ul>
+    </nav>
+    <main class="main-content">
+        <h1>Labor Dashboard</h1>
+        
+        <!-- Payment Summary -->
+        <div class="payment-summary">
+            <div class="payment-card">
+                <h3>Total Jobs</h3>
+                <div class="amount"><%= totalJobs %></div>
+            </div>
+            <div class="payment-card">
+                <h3>Active Jobs</h3>
+                <div class="amount"><%= activeJobsCount %></div>
+            </div>
+            <div class="payment-card">
+                <h3>Total Earnings</h3>
+                <div class="amount">₹ <%= totalEarnings.toLocaleString() %></div>
+            </div>
+        </div>
+
+        <!-- Applied Jobs -->
+        <div class="job-list">
+            <h2>Applied Jobs</h2>
+            <% if (appliedJobs && appliedJobs.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Client</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% appliedJobs.forEach(job => { %>
+                    <tr>
+                        <td><%= job.title %></td>
+                        <td><%= job.client %></td>
+                        <td><%= job.date %></td>
+                        <td>
+                            <% if (job.status === 'Pending') { %>
+                                <span class="status pending"><%= job.status %></span>
+                            <% } else if (job.status === 'Accepted') { %>
+                                <span class="status active"><%= job.status %></span>
+                            <% } %>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openJobDetailsModal(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(job)) %>'))">View Details</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h3>You are not currently applied to any jobs.</h3>
+            <% } %>
+        </div>
+
+        <!-- Active Jobs -->
+        <div class="job-list">
+            <h2>Active Jobs</h2>
+            <% if (activeJobs && activeJobs.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Client</th>
+                        <th>Start Date</th>
+                        <th>Expected Completion</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% activeJobs.forEach(job => { %>
+                    <tr>
+                        <td><%= job.title %></td>
+                        <td><%= job.client %></td>
+                        <td><%= job.startDate %></td>
+                        <td><%= job.expectedCompletion %></td>
+                        <td>
+                            <span class="status active"><%= job.status %></span>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h3>No active jobs found.</h3>
+            <% } %>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2025 KaamSetu. All rights reserved.</p>
+    </footer>
+    <script src="/js/labor-dashboard.js"></script>
+
+</body>
+</html>

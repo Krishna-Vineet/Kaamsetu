@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Admin Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-dashboard.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'" src="/images/1.png" alt="KaamSetu Logo" style="height:40px;width:40px;vertical-align:middle;margin-right:8px;border-radius:8px;cursor: pointer;" />
+            KaamSetu Admin
+        </div>
+        <a href="/logout" class="logout-btn" style="margin-left:auto; color:#fff; background:#00978A; padding:8px 16px; border-radius:4px; text-decoration:none; font-weight:600;">Logout <i class="fas fa-sign-out-alt"></i></a>
+    </header>
+
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/admin/dashboard/<%= adminId %>" class="active"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/admin/users/<%= adminId %>"><i class="fas fa-users"></i>User Management</a></li>
+            <li><a href="/admin/payments/<%= adminId %>"><i class="fas fa-money-bill-wave"></i>Payment Management</a></li>
+            <li><a href="/admin/disputes/<%= adminId %>"><i class="fas fa-gavel"></i>Dispute Management</a></li>
+            <li><a href="/admin/jobs/<%= adminId %>"><i class="fas fa-briefcase"></i>Job Management</a></li>
+        </ul>
+    </nav>
+    <div class="sidebar-overlay"></div>
+
+    <main class="main-content">
+        <div class="profile-header">
+            <img src="<%= admin.profilePic || '/images/1.png' %>" alt="Admin Profile" class="profile-photo" style="border-radius:50%;width:80px;height:80px;object-fit:cover;border:3px solid #00978A;box-shadow:0 2px 8px rgba(0,0,0,0.08);background:#fff;" />
+            <div class="profile-details">
+                <h2><%= admin.name %></h2>
+                <p><i class="fas fa-envelope"></i> <%= admin.email %></p>
+                <p><i class="fas fa-user-tag"></i> Admin</p>
+                <div>
+                    <button class="btn btn-primary" onclick="openEditProfileModal()">Edit Profile</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-stats">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="value"><%= data.totalUsers %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Jobs</h3>
+                <div class="value"><%= data.activeJobs %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Pending Disputes</h3>
+                <div class="value"><%= data.pendingDisputes %></div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Payments</h3>
+                <div class="value">₹ <%= data.totalPayments %></div>
+            </div>
+        </div>
+
+        <div class="activity-feed">
+            <% if (logs.length === 0) { %>
+                <h2>No Recent Activity</h2>
+            <% } else { %>
+                <h2>Recent Platform Activity</h2>
+
+                <% logs.forEach(log => { %>
+                    <div class="activity-item">
+                        <div class="activity-details">
+                            <h4><%= log.title %></h4>
+                            <p><%= log.message %></p>
+                        </div>
+                        <small><%= log.time %></small>
+                    </div>   
+                <% }) %>
+            <% } %>
+            
+            
+            <!-- <div class="activity-item">
+                <div class="activity-details">
+                    <h4>Job Posted</h4>
+                    <p>Home Painting Job created by Amit Patel</p>
+                </div>
+                <span class="activity-badge badge-job-post">Job Post</span>
+                <small>15 mins ago</small>
+            </div>
+            <div class="activity-item">
+                <div class="activity-details">
+                    <h4>Payment Processed</h4>
+                    <p>₹ 15,000 paid to Rajesh Kumar</p>
+                </div>
+                <span class="activity-badge badge-payment">Payment</span>
+                <small>1 hour ago</small>
+            </div>
+            <div class="activity-item">
+                <div class="activity-details">
+                    <h4>Dispute Raised</h4>
+                    <p>New dispute in Kitchen Renovation Job</p>
+                </div>
+                <span class="activity-badge badge-dispute">Dispute</span>
+                <small>3 hours ago</small>
+            </div> -->
+        </div>
+    </main>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Profile</h2>
+                <span class="close-modal" onclick="closeModal('editProfileModal')">&times;</span>
+            </div>
+            <form id="editProfileForm">
+                <div class="form-group">
+                    <label>Profile Photo</label>
+                    <input type="file" value="<%= admin.profilePic || 'https://i.pravatar.cc/300' %>" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" value="<%= admin.name %>" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" value="<%= admin.email %>" required>
+                </div>
+                <div class="form-group">
+                    <label>Current Password (to confirm changes)</label>
+                    <input type="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 KaamSetu Admin Panel. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/admin-dashboard.js"></script>
+</body>
+</html>

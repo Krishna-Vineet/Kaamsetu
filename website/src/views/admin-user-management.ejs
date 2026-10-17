@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu Admin - User Management</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/admin-user-management.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/1.png" alt="KaamSetu Logo" style="height:40px;width:40px;vertical-align:middle;margin-right:8px;border-radius:8px;cursor: pointer;" />
+            KaamSetu Admin
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/admin/dashboard/<%= adminId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/admin/users/<%= adminId %>" class="active"><i class="fas fa-users"></i>User Management</a></li>
+            <li><a href="/admin/payments/<%= adminId %>"><i class="fas fa-money-bill-wave"></i>Payment Management</a></li>
+            <li><a href="/admin/disputes/<%= adminId %>"><i class="fas fa-gavel"></i>Dispute Management</a></li>
+            <li><a href="/admin/jobs/<%= adminId %>"><i class="fas fa-briefcase"></i>Job Management</a></li>
+        </ul>
+    </nav>
+    <div class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-header">
+            <h1>User Management</h1>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" placeholder="Search users...">
+            <button class="btn btn-primary">Search</button>
+        </div>
+
+        <div class="user-table">
+            <% if (users && users.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Registration Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% users.forEach((user) => { %>
+                    <tr>
+                        <td><%= user.name %></td>
+                        <td><%= user.role %></td>
+                        <td><%= user.email %></td>
+                        <td><span class="status active"><%= user.isActive ? 'Active' : 'Inactive' %></span></td>
+                        <td><%= user.createdAt %></td>
+                        <td class="actions">
+                            <button class="btn-icon" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon" title="Email"><i class="fas fa-envelope"></i></button>
+                            <button class="btn-icon" title="Suspend"><i class="fas fa-ban"></i></button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                    <!-- <tr>
+                        <td>priya sharma</td>
+                        <td>Client</td>
+                        <td>priya@example.com</td>
+                        <td><span class="status suspended">Suspended</span></td>
+                        <td>2025-01-10</td>
+                        <td class="actions">
+                            <button class="btn-icon" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="btn-icon" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="btn-icon" title="Email"><i class="fas fa-envelope"></i></button>
+                            <button class="btn-icon" title="Activate"><i class="fas fa-check"></i></button>
+                        </td>
+                    </tr> -->
+                </tbody>
+            </table>
+            <% } else { %>
+            <p>No User Found at the Moment</p>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 KaamSetu Admin Panel. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/admin-user-management.js"></script>
+</body>
+</html>

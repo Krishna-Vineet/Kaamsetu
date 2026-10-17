@@ -1,0 +1,23 @@
+/* TEAM */
+# Human-Readable Sitemap for KaamSetu
+
+# Site Information
+Site: KaamSetu
+Description: India's leading platform connecting skilled workers with clients for local services
+Language: English, Hindi
+
+# Team Information
+Founder: [Your Name]
+Contact: contact@kaamsetu.co.in
+Location: India
+
+# Technology Stack
+Frontend: React, Vite
+Backend: Node.js, Express
+Database: MongoDB
+Hosting: [Your Hosting Provider]
+
+# Thanks & Recognition
+Thanks to all our users and contributors who make KaamSetu better every day.
+
+# Last Updated: 2025-10-03

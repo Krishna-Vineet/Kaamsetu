@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>You're Offline - KaamSetu</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --text: #1f2937;
+      --text-light: #6b7280;
+      --bg: #f9fafb;
+      --white: #ffffff;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      text-align: center;
+    }
+    
+    .container {
+      max-width: 500px;
+      width: 100%;
+      background: var(--white);
+      border-radius: 12px;
+      padding: 3rem 2rem;
+      box-shadow: var(--shadow);
+      animation: fadeIn 0.6s ease-out;
+    }
+    
+    .logo {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      display: block;
+    }
+    
+    h1 {
+      color: var(--primary);
+      font-size: 1.875rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: var(--text-light);
+      margin-bottom: 2rem;
+      font-size: 1.1rem;
+    }
+    
+    .btn {
+      display: inline-block;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 2px 4px rgba(79, 70, 229, 0.2);
+    }
+    
+    .btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
+    }
+    
+    .illustration {
+      max-width: 300px;
+      margin: 0 auto 2rem;
+      display: block;
+      opacity: 0.9;
+    }
+    
+    .connection-status {
+      display: inline-flex;
+      align-items: center;
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 0.5rem 1rem;
+      border-radius: 9999px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 1.5rem;
+    }
+    
+    .connection-status.offline::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #dc2626;
+      margin-right: 8px;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    @media (max-width: 480px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+      
+      h1 {
+        font-size: 1.5rem;
+      }
+      
+      .illustration {
+        max-width: 220px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img src="/icons/logo.png" alt="KaamSetu Logo" class="logo">
+    <div class="connection-status offline">You're currently offline</div>
+    
+    <svg class="illustration" viewBox="0 0 500 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M437.5 118.75C437.5 97.5134 420.237 80.3125 399 80.3125C381.5 80.3125 367.5 93.125 365 110C360 106.25 353.5 103.75 346.5 103.75C331.5 103.75 319 116.25 319 131.25C319 131.25 319 135 320.5 137.5C314.5 140.5 310.5 146.5 310.5 153.75C310.5 164.5 319.5 173.25 330.5 173.25H437.5V118.75Z" fill="#E5E7EB"/>
+      <path d="M437.5 193.75H330.5C315.5 193.75 303.5 206.25 303.5 221.25C303.5 236.25 315.5 248.75 330.5 248.75H437.5V193.75Z" fill="#E5E7EB"/>
+      <path d="M437.5 118.75C437.5 97.5134 420.237 80.3125 399 80.3125C381.5 80.3125 367.5 93.125 365 110C360 106.25 353.5 103.75 346.5 103.75C331.5 103.75 319 116.25 319 131.25C319 131.25 319 135 320.5 137.5C314.5 140.5 310.5 146.5 310.5 153.75C310.5 164.5 319.5 173.25 330.5 173.25H437.5V118.75Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+      <path d="M437.5 193.75H330.5C315.5 193.75 303.5 206.25 303.5 221.25C303.5 236.25 315.5 248.75 330.5 248.75H437.5V193.75Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+      <path d="M62.5 143.75H178.5C193.5 143.75 205.5 156.25 205.5 171.25C205.5 186.25 193.5 198.75 178.5 198.75H62.5V143.75Z" fill="#E5E7EB"/>
+      <path d="M62.5 143.75H178.5C193.5 143.75 205.5 131.25 205.5 116.25C205.5 101.25 193.5 88.75 178.5 88.75H62.5V143.75Z" fill="#E5E7EB"/>
+      <path d="M62.5 143.75H178.5C193.5 143.75 205.5 156.25 205.5 171.25C205.5 186.25 193.5 198.75 178.5 198.75H62.5V143.75Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+      <path d="M62.5 143.75H178.5C193.5 143.75 205.5 131.25 205.5 116.25C205.5 101.25 193.5 88.75 178.5 88.75H62.5V143.75Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+      <path d="M250 56.25C250 87.2656 224.766 112.5 193.75 112.5C162.734 112.5 137.5 87.2656 137.5 56.25C137.5 25.2344 162.734 0 193.75 0C224.766 0 250 25.2344 250 56.25Z" fill="#E5E7EB"/>
+      <path d="M250 56.25C250 87.2656 224.766 112.5 193.75 112.5C162.734 112.5 137.5 87.2656 137.5 56.25C137.5 25.2344 162.734 0 193.75 0C224.766 0 250 25.2344 250 56.25Z" stroke="#9CA3AF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+      <path d="M193.75 93.75C215.678 93.75 233.5 77.6005 233.5 57.5C233.5 37.3995 215.678 21.25 193.75 21.25C171.822 21.25 154 37.3995 154 57.5C154 77.6005 171.822 93.75 193.75 93.75Z" fill="#9CA3AF" fill-opacity="0.3"/>
+      <path d="M193.75 71.25C200.3 71.25 205.5 65.2181 205.5 57.5C205.5 49.7819 200.3 43.75 193.75 43.75C187.2 43.75 182 49.7819 182 57.5C182 65.2181 187.2 71.25 193.75 71.25Z" fill="#9CA3AF" fill-opacity="0.6"/>
+      <path d="M193.75 56.25C194.576 56.25 195.25 55.6307 195.25 54.875V43.75C195.25 42.9943 194.576 42.375 193.75 42.375C192.924 42.375 192.25 42.9943 192.25 43.75V54.875C192.25 55.6307 192.924 56.25 193.75 56.25Z" fill="#4B5563"/>
+      <path d="M193.75 56.25C193.059 56.25 192.5 55.724 192.5 55.0625C192.5 54.401 193.059 53.875 193.75 53.875C194.441 53.875 195 54.401 195 55.0625C195 55.724 194.441 56.25 193.75 56.25Z" fill="#4B5563"/>
+    </svg>
+    
+    <h1>No Internet Connection</h1>
+    <p>It looks like you've lost your internet connection. Please check your network settings and try again.</p>
+    
+    <button onclick="window.location.reload()" class="btn">Try Again</button>
+  </div>
+  
+  <script>
+    // Check for online status
+    function updateOnlineStatus() {
+      if (navigator.onLine) {
+        window.location.href = '/';
+      }
+    }
+    
+    // Listen for online status changes
+    window.addEventListener('online', updateOnlineStatus);
+    
+    // Check if we're back online
+    if (navigator.onLine) {
+      window.location.href = '/';
+    }
+  </script>
+</body>
+</html>

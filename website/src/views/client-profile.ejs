@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Client Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/client-profile.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <!-- Header (Copied from dashboard) -->
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="cursor: pointer;height:40px;vertical-align:middle;margin-right:10px;">
+            KaamSetu Client
+        </div>
+        <a href="/logout" class="logout-btn" style="margin-left:auto; color:#fff; background:#00978A; padding:8px 16px; border-radius:4px; text-decoration:none; font-weight:600;">Logout <i class="fas fa-sign-out-alt"></i></a>
+    </header>
+
+    <!-- Sidebar (Copied from dashboard) -->
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/client/dashboard/<%= clientId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/client/post-job/<%= clientId %>"><i class="fas fa-plus-circle"></i>Post a Job</a></li>
+            <li><a href="/client/manage-job/<%= clientId %>"><i class="fas fa-briefcase"></i>Manage Jobs</a></li>
+            <li><a href="/client/past-jobs/<%= clientId %>"><i class="fas fa-history"></i>Past Jobs</a></li>
+            <li><a href="/client/payments/<%= clientId %>"><i class="fas fa-money-bill-wave"></i>Payments</a></li>
+            <li><a href="/client/profile/<%= clientId %>" class="active"><i class="fas fa-user"></i>Profile</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="profile-container">
+            <!-- Profile Sidebar -->
+            <div class="profile-sidebar">
+                <img src="<%= client.avatar || '/images/client.jpeg' %>" alt="Profile Avatar" class="profile-avatar" style="width:100px;height:100px;border-radius:50%;margin:0 auto 20px;box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+                <h2><%= client.name %></h2>
+                <p>Client</p>
+                <button class="edit-btn">Edit Profile</button>
+            </div>
+
+            <!-- Profile Details -->
+            <div class="profile-details">
+                <!-- Profile Tabs -->
+                <div class="profile-tabs">
+                    <div class="profile-tab active" data-tab="personal">Personal Info</div>
+                    <div class="profile-tab" data-tab="work">Work Profile</div>
+                </div>
+
+                <!-- Personal Info Section -->
+                <div class="profile-section active" id="personalTab">
+                    <div class="profile-grid">
+                        <div class="profile-field">
+                            <label>Name</label>
+                            <input type="text" value="<%= client.name %>" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Email</label>
+                            <input type="text" value="<%= client.email %>" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Phone</label>
+                            <input type="text" value="<%= client.phone %>" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Address</label>
+                            <input type="text" value="<%= client.address %>" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Work Profile Section -->
+                <div class="profile-section" id="workTab">
+                    <div class="profile-grid">
+                        <div class="profile-field">
+                            <label>Total Jobs Posted</label>
+                            <input type="text" value="<%= client.totalJobs %>" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Total Spent</label>
+                            <input type="text" value="₹<%= client.totalSpent != 0 ? client.totalSpent : '00' %>" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Active Jobs</label>
+                            <input type="text" value="<%= client.activeJobs %>" readonly>
+                        </div>
+                        <div class="profile-field">
+                            <label>Disputes</label>
+                            <input type="text" value="<%= client.disputes %>" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (Copied from dashboard) -->
+    <footer class="footer">
+        <p>&copy; 2024 KaamSetu. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/client-profile.js"></script>
+</body>
+</html>

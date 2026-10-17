@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - KaamSetu</title>
+
+    <link rel="stylesheet" href="/css/login.css">
+
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="/images/crop-trans.png" alt="KaamSetu Logo" class="logo-img" />
+            <h1>KaamSetu</h1>
+            <p>Connect Skilled Laborers with Clients</p>
+        </div>
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="btn-login">Login</button>
+            <div class="login-footer">
+                <a href="#" id="forgot-password">Forgot Password?</a>
+                <a href="/labor-registration" id="register-now">Register as Labor</a>
+                <a href="/client-registration" id="register-now">Register as Client</a>
+            </div>
+        </form>
+    </div>
+
+    <script src="/js/login.js"></script>
+</body>
+</html>

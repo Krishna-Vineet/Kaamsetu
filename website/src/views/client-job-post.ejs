@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Post a Job</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/client-job-post.css">
+
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <!-- Header and Sidebar from base template -->
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img  onclick="window.location.href='/'" src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="height:40px;vertical-align:middle;margin-right:10px;cursor: pointer;">
+            KaamSetu Client
+        </div>
+    </header>
+
+    <nav class="sidebar">
+      <ul class="sidebar-menu">
+        <li><a href="/client/dashboard/<%= clientId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+        <li><a href="/client/post-job/<%= clientId %>" class="active"><i class="fas fa-plus-circle"></i>Post a Job</a></li>
+        <li><a href="/client/manage-job/<%= clientId %>"><i class="fas fa-briefcase"></i>Manage Jobs</a></li>
+        <li><a href="/client/past-jobs/<%= clientId %>"><i class="fas fa-history"></i>Past Jobs</a></li>
+        <li><a href="/client/payments/<%= clientId %>"><i class="fas fa-money-bill-wave"></i>Payments</a></li>
+        <li><a href="/client/profile/<%= clientId %>"><i class="fas fa-user"></i>Profile</a></li>
+    </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="job-post-form">
+            <h1>Post a New Job</h1>
+            <form id="jobPostForm">
+                <!-- Job Basic Details -->
+                <div class="form-section">
+                    <h2>Job Details</h2>
+                    <div class="form-group">
+                        <label>Job Title</label>
+                        <input type="text" id="jobTitle" required placeholder="Enter job title">
+                    </div>
+                    <div class="form-group">
+                        <label>Job Description</label>
+                        <textarea id="jobDescription" rows="4" required placeholder="Provide detailed job description"></textarea>
+                    </div>
+                </div>
+
+                <!-- Job Category -->
+                <div class="form-section">
+                    <h2>Job Category</h2>
+                    <div class="category-grid" id="categoryGrid">
+                        <div class="category-option" data-category="home-services">
+                            <i class="fas fa-home"></i>
+                            <p>Home Services</p>
+                        </div>
+                        <div class="category-option" data-category="repair">
+                            <i class="fas fa-tools"></i>
+                            <p>Repair</p>
+                        </div>
+                        <div class="category-option" data-category="cleaning">
+                            <i class="fas fa-broom"></i>
+                            <p>Cleaning</p>
+                        </div>
+                        <div class="category-option" data-category="painting">
+                            <i class="fas fa-paint-roller"></i>
+                            <p>Painting</p>
+                        </div>
+                    </div>
+
+                    <div id="subcategoryContainer" class="subcategory-container">
+                        <h3>Select Subcategory</h3>
+                        <div class="category-grid" id="subcategoryGrid">
+                            <!-- Subcategories will be dynamically populated -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Job Logistics -->
+                <div class="form-section">
+                    <h2>Job Logistics</h2>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="jobLocation" required placeholder="Enter job location">
+                    </div>
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="date" id="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Expected End Date</label>
+                        <input type="date" id="endDate" required>
+                    </div>
+                </div>
+
+                <!-- Budget -->
+                <div class="form-section">
+                    <h2>Budget</h2>
+                    <div class="form-group">
+                        <label>Price Offered (₹)</label>
+                        <input type="number" id="price" required min="0" placeholder="Enter job budget">
+                    </div>
+                </div>
+
+                <!-- Media Upload -->
+                <div class="form-section">
+                    <h2>Job Media (Up to 5 files)</h2>
+                    <div class="file-upload-container" id="fileUploadContainer">
+                        <div class="file-upload-box">
+                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            <p>Upload File</p>
+                            <input type="file" accept="image/*,video/*" id="fileUpload1">
+                        </div>
+                        <div class="file-upload-box">
+                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            <p>Upload File</p>
+                            <input type="file" accept="image/*,video/*" id="fileUpload2">
+                        </div>
+                        <div class="file-upload-box">
+                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            <p>Upload File</p>
+                            <input type="file" accept="image/*,video/*" id="fileUpload3">
+                        </div>
+                        <div class="file-upload-box">
+                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            <p>Upload File</p>
+                            <input type="file" accept="image/*,video/*" id="fileUpload4">
+                        </div>
+                        <div class="file-upload-box">
+                            <i class="fas fa-cloud-upload-alt fa-2x"></i>
+                            <p>Upload File</p>
+                            <input type="file" accept="image/*,video/*" id="fileUpload5">
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Submit Button -->
+                <div class="form-section">
+                    <button type="submit" class="btn btn-primary btn-block">Post Job</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Upload Progress Modal -->
+    <div class="upload-progress" id="uploadProgress">
+        <h3>Uploading Files...</h3>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <p id="uploadStatus">Initializing upload</p>
+    </div>
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 KaamSetu. All rights reserved.</p>
+    </footer>
+
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
+    <script src="/js/client-job-post.js"></script>
+</body>
+</html>

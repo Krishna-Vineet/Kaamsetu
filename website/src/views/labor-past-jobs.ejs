@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Past Jobs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/labor-past-jobs.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="cursor: pointer;height:40px;vertical-align:middle;margin-right:10px;">
+            KaamSetu Labour
+        </div>
+    </header>
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/labor/dashboard/<%= laborId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/labor/available-jobs/<%= laborId %>"><i class="fas fa-briefcase"></i>Available Jobs</a></li>
+            <li><a href="/labor/past-jobs/<%= laborId %>" class="active"><i class="fas fa-history"></i>Past Jobs</a></li>
+            <li><a href="/labor/payment/<%= laborId %>"><i class="fas fa-money-bill-wave"></i>Payments</a></li>
+            <li><a href="/labor/profile/<%= laborId %>"><i class="fas fa-user"></i>Profile</a></li>
+        </ul>
+    </nav>
+    <main class="main-content">
+        <h1>Past Jobs</h1>
+
+        <!-- Completed Jobs -->
+        <div class="job-list">
+            <h2>Completed Jobs</h2>
+            <% if (completedJobs && completedJobs.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Client</th>
+                        <th>Location</th>
+                        <th>Completed Date</th>
+                        <th>Earnings</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% completedJobs.forEach(job => { %>
+                    <tr>
+                        <td><%= job.title %></td>
+                        <td><%= job.client %></td>
+                        <td><%= job.location %></td>
+                        <td><%= job.completedDate %></td>
+                        <td>₹ <%= job.earnings.toLocaleString() %></td>
+                        <td><span class="status active"><%= job.status %></span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openJobDetailsModal(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(job)) %>'))">View Details</button>
+                        </td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h3>You have not completed any job yet.</h3>
+            <% } %>
+        </div>
+
+        <!-- Cancelled Jobs -->
+        <div class="job-list">
+            <h2>Cancelled Jobs</h2>
+            <% if (cancelledJobs && cancelledJobs.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Client</th>
+                        <th>Cancellation Date</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% cancelledJobs.forEach(job => { %>
+                    <tr>
+                        <td><%= job.title %></td>
+                        <td><%= job.client %></td>
+                        <td><%= job.cancellationDate %></td>
+                        <td><%= job.reason %></td>
+                        <td><span class="status disputed"><%= job.status %></span></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <% } else { %>
+            <h3>No job done by you is cancelled yet.</h3>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Job Details Modal -->
+    <div id="jobDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Job Details</h2>
+                <span class="close-modal" onclick="closeModal('jobDetailsModal')">&times;</span>
+            </div>
+            <div class="form-group">
+                <label>Job Title</label>
+                <input type="text" id="jobTitle" readonly>
+            </div>
+            <div class="form-group">
+                <label>Client</label>
+                <input type="text" id="clientName" readonly>
+            </div>
+            <div class="form-group">
+                <label>Location</label>
+                <input type="text" id="location" readonly>
+            </div>
+            <div class="form-group">
+                <label>Completed Date</label>
+                <input type="text" id="completedDate" readonly>
+            </div>
+            <div class="form-group">
+                <label>Total Earnings</label>
+                <input type="text" id="totalEarnings" readonly>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 KaamSetu. All rights reserved.</p>
+    </footer>
+    <script src="/js/labor-past-jobs.js"></script>
+
+</body>
+</html>

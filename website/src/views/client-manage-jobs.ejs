@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KaamSetu - Manage Jobs</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="/css/client-manage-jobs.css" />
+      <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+  <body>
+    <header class="header">
+      <div class="toggle-sidebar">
+        <i class="fas fa-bars"></i>
+      </div>
+      <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="height:40px;vertical-align:middle;margin-right:10px;cursor: pointer;">
+            KaamSetu Client
+        </div>
+    </header>
+
+    <nav class="sidebar">
+      <ul class="sidebar-menu">
+        <li>
+          <a href="/client/dashboard/<%= clientId %>"
+            ><i class="fas fa-tachometer-alt"></i>Dashboard</a
+          >
+        </li>
+        <li>
+          <a href="/client/post-job/<%= clientId %>"
+            ><i class="fas fa-plus-circle"></i>Post a Job</a
+          >
+        </li>
+        <li>
+          <a href="/client/manage-job/<%= clientId %>" class="active"
+            ><i class="fas fa-briefcase"></i>Manage Jobs</a
+          >
+        </li>
+        <li>
+          <a href="/client/past-jobs/<%= clientId %>"
+            ><i class="fas fa-history"></i>Past Jobs</a
+          >
+        </li>
+        <li>
+          <a href="/client/payments/<%= clientId %>"
+            ><i class="fas fa-money-bill-wave"></i>Payments</a
+          >
+        </li>
+        <li>
+          <a href="/client/profile/<%= clientId %>"
+            ><i class="fas fa-user"></i>Profile</a
+          >
+        </li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+        <h2>Manage Active Jobs</h2>
+        <div class="management-container">
+          <!-- Job List -->
+          <section class="job-list-container">
+            <h3>Your Active Jobs</h3>
+            <% if (jobs.length > 0) { %>
+              <ul id="job-list">
+                <% jobs.forEach(job => { %>
+                  <li class="job-item" data-jobid="<%= job.jobId %>">
+                    <div class="job-title"><%= job.title %></div>
+                    <div class="job-status <%= job.status %>"><%= job.status %></div>
+                    <div class="job-meta">
+                      <span><%= job.location %></span>
+                      <span><%= job.startDate %></span>
+                    </div>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p class="empty-state">No active jobs found</p>
+            <% } %>
+          </section>
+          
+    
+          <!-- Job Details -->
+<section id="job-details" style="display: none;">
+    <h3 class="section-title">Job Details</h3>
+    <div class="job-info-container">
+      <!-- Basic Details -->
+      <div class="info-section">
+        <p><strong>Title:</strong> <span id="job-title"></span></p>
+        <p><strong>Description:</strong> <span id="job-description"></span></p>
+        <p><strong>Category:</strong> <span id="job-category"></span></p>
+        <p><strong>Sub-Category:</strong> <span id="job-subCategory"></span></p>
+        <p><strong>Status:</strong> <span id="job-status"></span></p>
+        <p><strong>Location:</strong> <span id="job-location"></span></p>
+        <p><strong>Start Date:</strong> <span id="job-start-date"></span></p>
+        <p><strong>Expected End Date:</strong> <span id="job-end-date"></span></p>
+        <p><strong>Budget:</strong> ₹<span id="job-budget"></span></p>
+        <p><strong>Cost till now:</strong> ₹<span id="job-cost"></span></p>
+      </div>
+  
+      <!-- Media Section -->
+      <div class="info-section">
+        <h4 class="section-subtitle">Media</h4>
+        <div id="job-media" class="media-gallery">
+          <!-- Images/Videos will be dynamically populated here -->
+        </div>
+      </div>
+  
+      <!-- Team Members -->
+      <div class="info-section">
+        <h4 class="section-subtitle">Team Members</h4>
+        <ul id="team-members" class="team-list"></ul>
+      </div>
+  
+      <!-- Updates -->
+      <div class="info-section">
+        <h4 class="section-subtitle">Updates</h4>
+        <div id="job-updates" class="updates-container"></div>
+      </div>
+    </div>
+  
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+      <button id="add-update-btn" class="btn btn-primary">Add Update</button>
+    </div>
+  </section>
+        </div>
+      </main>
+    
+      <input type="hidden" id="clientId" value="<%= clientId %>" />
+      <!-- Modal for Adding Job Update -->
+      <div id="update-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4>Add Job Update</h4>
+            <span class="close-modal">&times;</span>
+          </div>
+          <form id="update-form" class="form-group">
+            <label for="update-title">Update Title</label>
+            <input type="text" id="update-title" name="title" required>
+            <label for="update-description">Update Description</label>
+            <textarea id="update-description" name="description" required></textarea>
+            <button type="submit" class="btn btn-primary">Submit Update</button>
+          </form>
+        </div>
+      </div>
+
+    <footer class="footer">
+      <p>&copy; 2024 KaamSetu. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/client-manage-jobs.js"></script>
+  </body>
+</html>

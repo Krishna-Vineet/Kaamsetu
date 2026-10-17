@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Labor Registration - KaamSetu</title>
+    <link rel="stylesheet" href="/css/registration.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <div class="container">
+        <div class="registration-wrapper">
+            <div class="registration-info">
+                <div class="icons">
+                    <img src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" />
+                    <img src="/images/labour.jpeg" alt="Client Icon" class="icon-img" />
+                </div>
+                <h2>Join KaamSetu</h2>
+                <p>Connect directly with clients, get fair pay, and grow your professional network.</p>
+                <p>Benefits of Registering:</p>
+                <ul>
+                    <li>No middlemen</li>
+                    <li>Direct job opportunities</li>
+                    <li>Transparent payment system</li>
+                    <li>Secure UPI transactions</li>
+                </ul>
+            </div>
+            <div class="registration-form">
+                <form id="labor-registration-form">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">Confirm Password</label>
+                        <input type="password" id="confirm-password" name="confirm-password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Your Skills (Select multiple)</label>
+                        <div class="skills-container">
+                            <input type="checkbox" id="mason" name="skills" value="mason" class="skill-checkbox">
+                            <label for="mason" class="skill-label">Mason</label>
+                            
+                            <input type="checkbox" id="carpenter" name="skills" value="carpenter" class="skill-checkbox">
+                            <label for="carpenter" class="skill-label">Carpenter</label>
+                            
+                            <input type="checkbox" id="electrician" name="skills" value="electrician" class="skill-checkbox">
+                            <label for="electrician" class="skill-label">Electrician</label>
+                            
+                            <input type="checkbox" id="plumber" name="skills" value="plumber" class="skill-checkbox">
+                            <label for="plumber" class="skill-label">Plumber</label>
+                            
+                            <input type="checkbox" id="housekeeper" name="skills" value="housekeeper" class="skill-checkbox">
+                            <label for="housekeeper" class="skill-label">Housekeeper</label>
+                            
+                            <input type="checkbox" id="technician" name="skills" value="technician" class="skill-checkbox">
+                            <label for="technician" class="skill-label">Technician</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" name="address" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="pincode">Pin Code</label>
+                        <input type="text" id="pincode" name="pincode" required pattern="[0-9]{6}">
+                    </div>
+                    <div class="form-group">
+                        <label for="upiId">UPI ID</label>
+                        <input type="text" id="upiId" name="upiId" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn-submit">Join as Labor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/labor-registration.js"></script>
+</body>
+</html>

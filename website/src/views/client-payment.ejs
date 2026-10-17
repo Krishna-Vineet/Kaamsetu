@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Payments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/client-payment.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <!-- Header and Sidebar from base template -->
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="cursor: pointer;height:40px;vertical-align:middle;margin-right:10px;">
+            KaamSetu Client
+        </div>
+    </header>
+
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/client/dashboard/<%= clientId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/client/post-job/<%= clientId %>"><i class="fas fa-plus-circle"></i>Post a Job</a></li>
+            <li><a href="/client/manage-job/<%= clientId %>"><i class="fas fa-briefcase"></i>Manage Jobs</a></li>
+            <li><a href="/client/past-jobs/<%= clientId %>"><i class="fas fa-history"></i>Past Jobs</a></li>
+            <li><a href="/client/payments/<%= clientId %>" class="active"><i class="fas fa-money-bill-wave"></i>Payments</a></li>
+            <li><a href="/client/profile/<%= clientId %>"><i class="fas fa-user"></i>Profile</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1>Payment Management</h1>
+        
+        <div class="payment-summary">
+            <div class="payment-card">
+                <h3>Total Spent</h3>
+                <div class="amount">₹ <%= data.totalSpent %></div>
+            </div>
+            <div class="payment-card">
+                <h3>Pending Payments</h3>
+                <div class="amount">₹ <%= data.pendingPayments %></div>
+            </div>
+            <div class="payment-card">
+                <h3>Completed Payments</h3>
+                <div class="amount">₹ <%= data.completedPayments %></div>
+            </div>
+        </div>
+
+        <!-- Pending Payments -->
+        <div class="job-list">
+            <h2>Pending Payments</h2>
+            <% if (pendingPayments && pendingPayments.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Job ID</th>
+                        <th>Amount Due</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% pendingPayments.forEach((payment) => { %>
+                    <tr>
+                        <td><%= payment.jobTitle %></td>
+                        <td><%= payment.jobId %></td>
+                        <td>₹ <%= payment.amountDue %></td>
+                        <td><%= payment.dueDate %></td>
+                        <td><span class="status <%= payment.status %>"><%= payment.status %></span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openPaymentModal()">Pay Now</button>
+                        </td>
+                    </tr>
+                    <% }); %>
+                    <!-- <tr>
+                        <td>Home Painting</td>
+                        <td>JOB-001</td>
+                        <td>₹ 15,000</td>
+                        <td>2024-03-10</td>
+                        <td><span class="status pending">Awaiting Payment</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openPaymentModal()">Pay Now</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Electrical Repair</td>
+                        <td>JOB-005</td>
+                        <td>₹ 10,000</td>
+                        <td>2024-03-15</td>
+                        <td><span class="status pending">Awaiting Payment</span></td>
+                        <td>
+                            <button class="btn btn-primary" onclick="openPaymentModal()">Pay Now</button>
+                        </td>
+                    </tr> -->
+                </tbody>
+            </table>
+            <% } else { %>
+            <p>No pending payments found.</p>
+            <% } %>
+        </div>
+
+        <!-- Payment History -->
+        <div class="job-list">
+            <h2>Payment History</h2>
+            <% if (paymentHistory && paymentHistory.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Job Title</th>
+                        <th>Job ID</th>
+                        <th>Amount Paid</th>
+                        <th>Payment Date</th>
+                        <th>Payment Method</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% paymentHistory.forEach((payment) => { %>
+                    <tr>
+                        <td><%= payment.jobTitle %></td>
+                        <td><%= payment.jobId %></td>
+                        <td>₹ <%= payment.amountPaid %></td>
+                        <td><%= payment.paymentDate %></td>
+                        <td><%= payment.upiId %></td>
+                        <td><span class="status <%= payment.status %>"><%= payment.status %></span></td>
+                    </tr>
+                    <% }); %>
+                    <!-- <tr>
+                        <td>Kitchen Renovation</td>
+                        <td>JOB-002</td>
+                        <td>₹ 45,000</td>
+                        <td>2023-12-15</td>
+                        <td>UPI</td>
+                        <td><span class="status active">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Bathroom Remodeling</td>
+                        <td>JOB-003</td>
+                        <td>₹ 35,000</td>
+                        <td>2023-11-25</td>
+                        <td>UPI</td>
+                        <td><span class="status active">Completed</span></td>
+                    </tr> -->
+                </tbody>
+            </table>
+            <% } else { %>
+            <p>No payment history found.</p>
+            <% } %>
+        </div>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="paymentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Make Payment</h2>
+                <span class="close-modal" onclick="closeModal('paymentModal')">&times;</span>
+            </div>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" id="jobTitle" value="Home Painting" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Total Amount Due</label>
+                    <input type="text" id="amountDue" value="₹ 15,000" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="">Select Payment Method</option>
+                        <option value="online">Online Transfer</option>
+                        <option value="credit">Credit Card</option>
+                        <option value="debit">Debit Card</option>
+                        <option value="upi">UPI</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Payment Amount</label>
+                    <input type="number" id="paymentAmount" max="15000" min="0" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Confirm Payment</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 KaamSetu. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/client-payment.js"></script>
+</body>
+</html>

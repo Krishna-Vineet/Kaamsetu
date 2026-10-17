@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KaamSetu - Past Jobs</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/client-past-jobs.css">
+    <link rel="icon" type="image/png" href="/images/1.png">
+</head>
+<body>
+    <!-- Header and Sidebar from base template -->
+    <header class="header">
+        <div class="toggle-sidebar">
+            <i class="fas fa-bars"></i>
+        </div>
+        <div class="logo">
+            <img onclick="window.location.href='/'"  src="/images/kaamsetu-sq.jpeg" alt="KaamSetu Logo" class="logo-img" style="cursor: pointer;height:40px;vertical-align:middle;margin-right:10px;">
+            KaamSetu Client
+        </div>
+    </header>
+
+    <nav class="sidebar">
+        <ul class="sidebar-menu">
+            <li><a href="/client/dashboard/<%= clientId %>"><i class="fas fa-tachometer-alt"></i>Dashboard</a></li>
+            <li><a href="/client/post-job/<%= clientId %>"><i class="fas fa-plus-circle"></i>Post a Job</a></li>
+            <li><a href="/client/manage-job/<%= clientId %>"><i class="fas fa-briefcase"></i>Manage Jobs</a></li>
+            <li><a href="/client/past-jobs/<%= clientId %>" class="active"><i class="fas fa-history"></i>Past Jobs</a></li>
+            <li><a href="/client/payments/<%= clientId %>"><i class="fas fa-money-bill-wave"></i>Payments</a></li>
+            <li><a href="/client/profile/<%= clientId %>"><i class="fas fa-user"></i>Profile</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <h1>Past Jobs</h1>
+        
+        <div class="job-list">
+            <h2>Cancelled Jobs</h2>
+            <% if (cancelledJobs && cancelledJobs.length > 0) { %>
+            <table>
+              <thead>
+                <tr>
+                  <th>Job Title</th>
+                  <th>Start Date</th>
+                  <th>Cancellation Date</th>
+                  <th>Reason</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% cancelledJobs.forEach((job) => { %>
+                <tr>
+                  <td><%= job.title %></td>
+                  <td><%= job.startDate %></td>
+                  <td><%= job.cancellationDate %></td>
+                  <td><%= job.reason %></td>
+                  <td><span class="status <%= job.status %>"><%= job.status %></span></td>
+                  <td>
+                    <button class="btn btn-secondary" onclick="openCancellationDetailsModal(decodeURIComponent('<%= encodeURIComponent(JSON.stringify(job)) %>'))">View Details</button>
+                  </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+            <% } else { %>
+            <p>No cancelled jobs found.</p>
+            <% } %>
+          </div>
+          
+          
+
+          <div id="cancellationDetailsModal" class="modal">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h2>Cancellation Details</h2>
+                <span class="close-modal" onclick="closeModal('cancellationDetailsModal')">&times;</span>
+              </div>
+              <div class="modal-body">
+                <div class="form-group">
+                  <label>Job Title</label>
+                  <input type="text" name="jobTitle" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <input type="text" name="jobDescription" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Start Date</label>
+                  <input type="text" name="jobStartDate" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Cancellation Date</label>
+                  <input type="text" name="jobCancellationDate" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Cancellation Reason</label>
+                  <textarea name="jobCancellationReason" readonly></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          
+    </main>
+
+    <!-- Job Details Modal -->
+    <div id="jobDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Job Details</h2>
+                <span class="close-modal" onclick="closeModal('jobDetailsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" value="Kitchen Renovation" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Job ID</label>
+                    <input type="text" value="JOB-002" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Total Cost</label>
+                    <input type="text" value="₹ 45,000" readonly>
+                </div>
+                <div class="form-group">
+                    <label>Team Members</label>
+                    <textarea readonly>
+1. Rahul Singh - Lead Worker
+2. Amit Patel - Assistant
+3. Sanjay Kumar - Helper
+                    </textarea>
+                </div>
+                <div class="form-group">
+                    <label>Feedback</label>
+                    <textarea readonly>Excellent work, completed on time and within budget.</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation Details Modal -->
+    <div id="cancellationDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Cancellation Details</h2>
+                <span class="close-modal" onclick="closeModal('cancellationDetailsModal')">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Job Title</label>
+                    <input type="text" value=`${job.title}` readonly>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" value=`${job.description}` readonly>
+                </div>
+                <div class="form-group">
+                    <label>Start Date</label>
+                    <input type="text" value=`${job.startDate}` readonly>
+                </div>
+                <div class="form-group">
+                    <label>Cancellation Date</label>
+                    <input type="text" value=`${job.cancellationDate}` readonly>
+                </div>
+                <div class="form-group">
+                    <label>Cancellation Reason</label>
+                    <textarea readonly>`${job.reason}`</textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 KaamSetu. All rights reserved.</p>
+    </footer>
+
+    <script src="/js/client-past-jobs.js"></script>
+</body>
+</html>

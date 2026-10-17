@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-700;
+  }
+
+  body {
+    @apply bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[#009889] hover:bg-[#00877a] text-white px-4 py-2 rounded-lg transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-[#536CA9] hover:bg-[#4a5f98] text-white px-4 py-2 rounded-lg transition-colors;
+  }
+
+  .btn-danger {
+    @apply bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors;
+  }
+
+  .btn-success {
+    @apply bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors;
+  }
+
+  .card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 border border-gray-200 dark:border-gray-700;
+  }
+
+  .input {
+    @apply w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-[#009889];
+  }
+}

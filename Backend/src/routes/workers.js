@@ -1,9 +1,6 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import { 
   getProfile, 
   updateProfile, 
@@ -17,18 +14,13 @@ import {
   uploadAadhaarDocument
 } from '../controllers/workerController.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { uploadsDir } from '../utils/uploadStaging.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const router = express.Router();
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const uploadsDir = path.join(__dirname, '../../uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
     cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {

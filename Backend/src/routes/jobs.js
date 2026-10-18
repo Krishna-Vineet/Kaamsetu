@@ -1,9 +1,6 @@
 import express from 'express';
 import multer from 'multer';
 import path from 'path';
-import fs from 'fs';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
 import {
   createJob,
   getClientJobs,
@@ -19,16 +16,9 @@ import {
   cancelJobByWorker
 } from '../controllers/jobController.js';
 import { authenticateToken, requireRole } from '../middleware/auth.js';
+import { uploadsDir } from '../utils/uploadStaging.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const router = express.Router();
-
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
-}
 
 // Configure multer for job image uploads
 const storage = multer.diskStorage({

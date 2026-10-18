@@ -30,6 +30,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### 🐛 Fixes
 
+- **Serverless cold-start crash on Vercel**: `mkdirSync('Backend/uploads')` ran at
+  module load in three route files, so the whole API died before answering any
+  request (read-only `/var/task`). Upload staging now lives in
+  `utils/uploadStaging.js`, which falls back to the OS temp dir on read-only
+  deployments — uploads still flow straight to Cloudinary and are unlinked.
 - Worker job feed (`/jobs/available`) no longer surfaces v1-era jobs when v1
   and v2 share the same database (`clientId` existence guard).
 - Admin panel: `useAuthNavigation().login()` swallowed the session token, so

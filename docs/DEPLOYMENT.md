@@ -50,8 +50,10 @@ Same env; set root directory `Backend`, start command `npm start`.
 ### Vercel (serverless, optional)
 - Project root = `Backend` (the included `Backend/index.js` + `.vercel/` handle this).
 - `app.listen` is automatically skipped when `VERCEL=1`; the Mongoose connection is cached across warm invocations.
-- ⚠️ In-memory rate limiting and local `uploads/` don't persist on serverless —
-  prefer Render/Railway for the API, or move uploads to Cloudinary-only storage.
+- ✅ Uploads are serverless-safe: `/var/task` is read-only, so files are staged in the OS
+  temp dir (`/tmp/kaamsetu-uploads`), pushed to Cloudinary, and deleted — all in one request.
+- ⚠️ In-memory rate limiting does not persist across invocations — prefer Render/Railway
+  for the API if you run serious traffic.
 
 ## 3️⃣ Web app + Admin panel — Vercel
 

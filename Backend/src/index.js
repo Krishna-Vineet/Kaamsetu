@@ -8,9 +8,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import hpp from 'hpp';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import { uploadsDir } from './utils/uploadStaging.js';
 import { emailFallbackActive, smsFallbackActive } from './utils/otpDelivery.js';
 
 // Import routes
@@ -20,8 +18,6 @@ import workerRoutes from './routes/workers.js';
 import clientRoutes from './routes/client.js';
 import adminRoutes from './routes/admin.js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -140,7 +136,7 @@ app.use(cookieParser());
 app.use(morgan(isProduction ? 'combined' : 'dev'));
 
 // Serve uploaded files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(uploadsDir));
 
 // ---------------------------------------------------------------------------
 // MongoDB — cached connection so serverless cold starts reuse warm connections

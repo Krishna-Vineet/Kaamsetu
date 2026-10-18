@@ -1,6 +1,6 @@
 # 📡 KaamSetu API Reference
 
-Base URL: `https://api.kaamsetu.co.in` (local: `http://localhost:5000`)
+Base URL: `https://apikaamsetuproject.vercel.app` (local: `http://localhost:5000`)
 
 All responses are JSON. Error shape is always:
 

@@ -3,9 +3,9 @@
 Battle-tested topology for KaamSetu:
 
 ```
-app.<domain>      (Vercel)  → web app        (Frontend/)
-admin.<domain>    (Vercel)  → admin panel    (Admin/)
-api.<domain>      (Render / Railway / Vercel serverless) → REST API (Backend/)
+appkaamsetuproject.vercel.app      (Vercel)  → web app        (Frontend/)
+admin.kaamsetuproject.vercel.app    (Vercel)  → admin panel    (Admin/)
+apikaamsetuproject.vercel.app      (Render / Railway / Vercel serverless) → REST API (Backend/)
 database          → MongoDB Atlas (M0 free tier is fine to start)
 ```
 
@@ -37,7 +37,7 @@ All three hostnames on one root domain keeps cookie-based auth simple
   TWILIO_ACCOUNT_SID / TWILIO_AUTH_TOKEN / TWILIO_PHONE_NUMBER
   CLOUDINARY_CLOUD_NAME / CLOUDINARY_API_KEY / CLOUDINARY_API_SECRET
   OPENROUTESERVICE_API_KEY
-  ALLOWED_ORIGINS=https://<domain>,https://www.<domain>,https://app.<domain>,https://admin.<domain>
+  ALLOWED_ORIGINS=https://kaamsetuproject.vercel.app,https://wwwkaamsetuproject.vercel.app,https://appkaamsetuproject.vercel.app,https://admin.kaamsetuproject.vercel.app
   COOKIE_HTTP_ONLY=true
   COOKIE_SECURE=true
   COOKIE_SAME_SITE=none
@@ -59,8 +59,8 @@ For **each** of `Frontend` and `Admin`:
 
 1. Vercel → **Add New → Project** → import repo → **Root Directory: `Frontend`** (resp. `Admin`).
 2. Framework preset: **Vite** (auto-detected; `vercel.json` SPA rewrites included).
-3. Env: `VITE_API_URL=https://api.<domain>` (Frontend optionally `VITE_ORS_API_KEY`).
-4. Deploy → assign subdomain `app.<domain>` / `admin.<domain>` (*Settings → Domains*).
+3. Env: `VITE_API_URL=https://apikaamsetuproject.vercel.app` (Frontend optionally `VITE_ORS_API_KEY`).
+4. Deploy → assign subdomain `kaamsetuproject.vercel.app` / `admin.kaamsetuproject.vercel.app` (*Settings → Domains*).
 
 > 📌 The repo folders (`Frontend`, `Admin`, `Backend`) map 1:1 to Vercel "Root
 > Directory" settings — if you ever rename the folders, update the setting first
@@ -74,24 +74,24 @@ For **each** of `Frontend` and `Admin`:
 | `CNAME` `admin` | Vercel |
 | `CNAME` `api` | Render/Railway/Vercel |
 
-Auth cookies are issued by `api.<domain>` and travel on every request from the
+Auth cookies are issued by `apikaamsetuproject.vercel.app` and travel on every request from the
 frontends (fetch `credentials: 'include'` is already in the code). Requirements:
 HTTPS everywhere (all three hosts) + `COOKIE_SECURE=true` + `COOKIE_SAME_SITE=none`.
-Optionally set `COOKIE_DOMAIN=.<domain>` to share cookies across subdomains.
+Optionally set `COOKIE_DOMAIN=kaamsetuproject.vercel.app` to share cookies across subdomains.
 
 ## 5️⃣ Smoke test after deploy
 
 ```bash
-curl https://api.<domain>/health                       # database: connected
-curl -X POST https://api.<domain>/auth/login …         # 200 / proper error
-# open https://admin.<domain> → sign in with ADMIN_PASSWORD
-# register a user on https://app.<domain> → OTP email arrives → verify → dashboard
+curl https://apikaamsetuproject.vercel.app/health                       # database: connected
+curl -X POST https://apikaamsetuproject.vercel.app/auth/login …         # 200 / proper error
+# open https://admin.kaamsetuproject.vercel.app → sign in with ADMIN_PASSWORD
+# register a user on https://appkaamsetuproject.vercel.app → OTP email arrives → verify → dashboard
 ```
 
 ## 6️⃣ Ongoing operations
 
 - **Logs**: `morgan` writes request logs to stdout (Render/Railway capture them; Vercel → *Observability*).
-- **Uptime**: point UptimeRobot/BetterStack at `https://api.<domain>/health` (checks DB too).
+- **Uptime**: point UptimeRobot/BetterStack at `https://apikaamsetuproject.vercel.app/health` (checks DB too).
 - **Key rotation**: see [KEY_ROTATION.md](KEY_ROTATION.md).
 - **Zero-downtime env changes**: update env vars, redeploy; sessions survive (JWT is stateless) unless you rotated `JWT_SECRET` — that intentionally logs everyone out once.
 

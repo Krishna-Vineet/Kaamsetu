@@ -140,17 +140,37 @@ app.use('/uploads', express.static(uploadsDir));
 
 // ---------------------------------------------------------------------------
 // MongoDB — cached connection so serverless cold starts reuse warm connections
+//
+// Serverless gotcha this design handles: a frozen/thawed function can hold a
+// DEAD cached connection object (idle sockets severed while suspended). Reusing
+// it means "connected" is never re-attempted and every request 503s forever on
+// that instance. So we only reuse a cached connection when the driver still
+// reports readyState 1, and the request gate below (not just module load) is
+// what actually drives connectDB — self-healing warm instances.
 // ---------------------------------------------------------------------------
 let cached = globalThis._kaamsetuMongoose;
 if (!cached) {
   cached = globalThis._kaamsetuMongoose = { conn: null, promise: null };
 }
 
+if (!process.env.MONGODB_URI) {
+  console.error('❌ MONGODB_URI is not set — every DB request will 503. \
+Set it in your host\'s env (Vercel → Settings → Environment Variables, \
+Production scope) and REDEPLOY. Note: it is MONGODB_URI here, not MONGO_URI.');
+}
+
 async function connectDB() {
-  if (cached.conn) return cached.conn;
+  // Reuse only a LIVE connection; a severed one must be re-established.
+  if (cached.conn && mongoose.connection.readyState === 1) return cached.conn;
+  cached.conn = null;
   if (!cached.promise) {
     cached.promise = mongoose
-      .connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 10000 })
+      .connect(process.env.MONGODB_URI, {
+        serverSelectionTimeoutMS: 10000,
+        // Serverless-friendly pool: default 100 connections per function
+        // instance can exhaust small Atlas tiers from a handful of cold starts.
+        maxPoolSize: 10,
+      })
       .then((m) => m);
   }
   try {
@@ -164,9 +184,8 @@ async function connectDB() {
   return cached.conn;
 }
 
-// Retry with backoff instead of crash-looping: the process stays up,
-// /health keeps reporting the DB state for monitoring, and DB-bound routes
-// return a clean 503 until the connection is established.
+// Kick off the first connection attempt at module load — a fire-and-forget
+// retry loop. The request gate below performs the authoritative reconnect.
 const connectWithRetry = (attempt = 1) => {
   connectDB().catch(() => {
     const delayMs = Math.min(2000 * attempt, 15000);
@@ -176,9 +195,17 @@ const connectWithRetry = (attempt = 1) => {
 };
 connectWithRetry();
 
-// Gate DB-bound routes while the database is unreachable (fail fast with 503
-// instead of hanging on Mongoose's buffering timeout).
-app.use((req, res, next) => {
+// Gate DB-bound routes while the database is unreachable. When no connection
+// attempt is in flight, run one on-demand — this is what heals dropped
+// serverless connections — so the first request reconnects instead of 503ing.
+// If an attempt IS in flight (cold-start retry loop), fail fast with 503
+// rather than double-parking the request behind it.
+app.use(async (req, res, next) => {
+  if (mongoose.connection.readyState !== 1 && !cached.promise) {
+    try {
+      await connectDB();
+    } catch { /* fall through to the 503 below */ }
+  }
   const passthrough = ['/', '/health', '/admin/verify'];
   if (mongoose.connection.readyState !== 1 && !passthrough.includes(req.path)) {
     return res.status(503).json({
@@ -198,7 +225,10 @@ app.use('/workers', workerRoutes);
 app.use('/clients', clientRoutes);
 app.use('/admin', adminRoutes);
 
-// Health check
+// Health check — also reports whether MONGODB_URI is even configured, so a
+// 503 can be diagnosed from a browser without touching function logs:
+//   database: "disconnected" + dbConfigured: false → env var missing/wrong name
+//   database: "disconnected" + dbConfigured: true  → bad URI/credentials/cluster
 app.get('/health', (req, res) => {
   const dbStates = ['disconnected', 'connected', 'connecting', 'disconnecting'];
   res.json({
@@ -206,6 +236,7 @@ app.get('/health', (req, res) => {
     message: 'KaamSetu API is running',
     uptime: Math.round(process.uptime()),
     database: dbStates[mongoose.connection.readyState] || 'unknown',
+    dbConfigured: Boolean(process.env.MONGODB_URI),
     timestamp: new Date().toISOString()
   });
 });

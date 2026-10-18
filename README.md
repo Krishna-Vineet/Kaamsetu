@@ -153,6 +153,20 @@ ADMIN_JWT_SECRET=<another 96-char hex>
 > screen ("📬 Email services are off — your verification code is…"). Add Resend
 > later and real delivery switches on automatically — no code changes.
 
+### 🌱 Seed a playable demo (Gurgaon data)
+
+```bash
+npm --prefix Backend run seed
+# then open the web app and log in:
+#   demo.client@kaamsetu.demo / Client@123
+#   demo.worker@kaamsetu.demo / Worker@123
+```
+
+16 workers & clients, 16 jobs across the full lifecycle, bidirectional reviews,
+Aadhaar states for the admin verification queue, and a blocked account — all
+around Gurugram. Idempotent: re-seeding only ever touches demo data.
+(The archived v1 app has its own equivalent: `npm --prefix legacy/website-v1 run seed`.)
+
 ---
 
 ## 📚 Documentation

@@ -19,6 +19,10 @@ npm start               # plain node
 
 `GET /health` reports liveness **and** database state.
 
+```bash
+npm run seed    # optional: Gurgaon demo dataset (see README at repo root)
+```
+
 ## Layout
 
 ```

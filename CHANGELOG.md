@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### ✨ Added
 
+- **v2 demo seed** (`Backend`, `npm run seed`) — 16 verified workers & clients,
+  16 Gurugram jobs (12 posted / assigned / active / completed), bidirectional
+  reviews, mixed Aadhaar states for the admin verification queue, and a blocked
+  account. Logins: `demo.client@kaamsetu.demo` / `demo.worker@kaamsetu.demo`.
+  Idempotent; TTL-index-safe (`isTemporary:false`).
 - **v1 demo seed** (`legacy/website-v1`, `npm run seed`) — realistic Gurugram
   demo content: 10 laborers, 5 clients, 11 jobs across the full lifecycle,
   payments, 5★ ratings and an open dispute, plus ready demo logins
@@ -25,6 +30,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### 🐛 Fixes
 
+- Worker job feed (`/jobs/available`) no longer surfaces v1-era jobs when v1
+  and v2 share the same database (`clientId` existence guard).
 - Admin panel: `useAuthNavigation().login()` swallowed the session token, so
   every admin API call went out unauthenticated (401). Tokens are now persisted
   and any 401 outside `/admin/verify` redirects to the login screen.

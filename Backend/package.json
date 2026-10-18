@@ -8,7 +8,8 @@
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
     "env:check": "node scripts/check-env.mjs",
-    "test": "jest"
+    "test": "jest",
+    "seed": "node scripts/seed-demo.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

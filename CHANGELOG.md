@@ -7,6 +7,11 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### ✨ Added
 
+- **v1 demo seed** (`legacy/website-v1`, `npm run seed`) — realistic Gurugram
+  demo content: 10 laborers, 5 clients, 11 jobs across the full lifecycle,
+  payments, 5★ ratings and an open dispute, plus ready demo logins
+  (`admin@kaamsetu.demo`, `demo.client@kaamsetu.demo`, `demo.labor@kaamsetu.demo`).
+  Idempotent; only demo data is ever wiped.
 - **Run v1 locally** — the archived EJS app now boots on modern Node with or
   without a database (view-only demo mode for the marketing pages). Added
   `legacy/website-v1/.env.example` and run instructions in `legacy/README.md`.

@@ -31,6 +31,32 @@ Point `MONGO_URI` at a real cluster for the full interactive experience.
 
 ⚠️ v1 uses **different env names** than v2 (`MONGO_URI`, not `MONGODB_URI`).
 
+### 🌱 Seed a playable demo (Gurgaon demo data)
+
+With `MONGO_URI` set, plant realistic demo content and log straight in:
+
+```bash
+npm run seed        # idempotent — wipes only demo (@kaamsetu.demo) data
+npm start           # → http://localhost:3000/loginPage
+```
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@kaamsetu.demo` | `Admin@123` |
+| Client | `demo.client@kaamsetu.demo` | `Client@123` |
+| Labor | `demo.labor@kaamsetu.demo` | `Labor@123` |
+
+The seed creates **10 laborers** (mason, electrician, plumber, painter, carpenter,
+tile-fitter, welder, POP-ceiling, AC-tech, helper), **5 clients**, **11 jobs**
+around Gurugram (posted → the labor "Available Jobs" page, active with progress
+updates, completed with payments + 5★ ratings, one cancelled, one open dispute)
+— so every dashboard, admin screen, payments and ratings page has content.
+Re-running `npm run seed` resets only the demo data; your real data is untouched.
+
+> 🔑 Admin in v1 is just a user with `role: "admin"` (no separate password):
+> after logging in you land on `/admin/dashboard/<id>` with user/job/payment/
+> dispute management.
+
 ### Compat fixes applied for modern Node (documented, intentional)
 
 | Change | Why |

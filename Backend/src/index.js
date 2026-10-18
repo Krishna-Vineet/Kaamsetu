@@ -11,6 +11,7 @@ import rateLimit from 'express-rate-limit';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { emailFallbackActive, smsFallbackActive } from './utils/otpDelivery.js';
 
 // Import routes
 import authRoutes from './routes/auth.js';
@@ -40,6 +41,15 @@ if (process.env.JWT_SECRET.length < 32) {
 }
 if (!process.env.JWT_REFRESH_SECRET) {
   console.warn('⚠️  JWT_REFRESH_SECRET is not set — falling back to JWT_SECRET. Set a separate secret in production.');
+}
+
+// Warn loudly when OTP delivery runs in fallback (demo) mode.
+if (emailFallbackActive()) {
+  console.warn('⚠️  EMAIL OTP DELIVERY IS IN FALLBACK MODE — codes are returned in API responses (devOtp) instead of being emailed.');
+  console.warn('    Configure RESEND_API_KEY + EMAIL_FROM for real delivery. Do not rely on fallback mode in production.');
+}
+if (smsFallbackActive()) {
+  console.warn('⚠️  SMS OTP DELIVERY IS IN FALLBACK MODE — codes are returned in API responses (devOtp) instead of being sent via Twilio.');
 }
 
 const app = express();

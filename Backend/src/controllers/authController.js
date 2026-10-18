@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Resend } from "resend";
 import { getCookieOptions, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL, REMEMBER_ME_REFRESH_TTL } from '../utils/cookieOptions.js';
+import { emailFallbackActive, otpDeliveryInfo, FALLBACK_MESSAGE } from '../utils/otpDelivery.js';
 
 // POST /api/auth/register
 export const register = async (req, res) => {
@@ -72,13 +73,24 @@ export const register = async (req, res) => {
         const otp = new OTP({ data: email.toLowerCase(), code: otpCode });
         await otp.save();
 
-        // Send OTP email (use existing name on the temp account if present)
+        // Deliver — real email, or fallback response when mail is not configured
+        if (emailFallbackActive()) {
+          return res.status(200).json({
+            success: true,
+            message: FALLBACK_MESSAGE,
+            requiresVerification: true,
+            email: email.toLowerCase(),
+            ...otpDeliveryInfo('response', otpCode)
+          });
+        }
         await sendOTPEmail(email, otpCode, existingUser.name || name);
 
         return res.status(200).json({
           success: true,
           message: 'OTP resent. Please verify your email.',
-          requiresVerification: true
+          requiresVerification: true,
+          email: email.toLowerCase(),
+          ...otpDeliveryInfo('email')
         });
       } catch (err) {
         console.error('Error resending OTP for temporary user:', err);
@@ -117,16 +129,25 @@ export const register = async (req, res) => {
       code: otpCode
     });
     await otp.save();
-    console.log('OTP generated and saved');
 
-    // Send OTP email
+    // Deliver — real email, or fallback response when mail is not configured
+    if (emailFallbackActive()) {
+      return res.json({
+        success: true,
+        message: FALLBACK_MESSAGE,
+        requiresVerification: true,
+        email: email.toLowerCase(),
+        ...otpDeliveryInfo('response', otpCode)
+      });
+    }
     await sendOTPEmail(email, otpCode, name);
-    console.log('OTP email sent');
 
     res.json({
       success: true,
       message: 'Registration initiated. Please verify your email.',
-      requiresVerification: true
+      requiresVerification: true,
+      email: email.toLowerCase(),
+      ...otpDeliveryInfo('email')
     });
 
   } catch (error) {
@@ -604,11 +625,19 @@ export const resendOtp = async (req, res) => {
       resendCount: existing ? existing.resendCount + 1 : 0
     }).save();
 
+    if (emailFallbackActive()) {
+      return res.status(200).json({
+        success: true,
+        message: FALLBACK_MESSAGE,
+        ...otpDeliveryInfo('response', otpCode)
+      });
+    }
     await sendOTPEmail(email, otpCode, user.name);
 
     return res.status(200).json({
       success: true,
-      message: 'A new verification code has been sent.'
+      message: 'A new verification code has been sent.',
+      ...otpDeliveryInfo('email')
     });
   } catch (error) {
     console.error('Resend OTP error:', error);
@@ -671,12 +700,21 @@ export const forgotPassword = async (req, res) => {
       resendCount: existing ? existing.resendCount + 1 : 0
     }).save();
 
+    if (emailFallbackActive()) {
+      return res.status(200).json({
+        success: true,
+        email,
+        message: FALLBACK_MESSAGE,
+        ...otpDeliveryInfo('response', otpCode)
+      });
+    }
     await sendPasswordResetEmail(email, otpCode, user.name);
 
     return res.status(200).json({
       success: true,
       email,
-      message: 'If an account exists with this email, a reset code is on its way.'
+      message: 'If an account exists with this email, a reset code is on its way.',
+      ...otpDeliveryInfo('email')
     });
   } catch (error) {
     console.error('Forgot password error:', error);

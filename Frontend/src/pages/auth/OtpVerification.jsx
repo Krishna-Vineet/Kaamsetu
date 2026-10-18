@@ -23,6 +23,10 @@ export function OtpVerification() {
   const role = location.state?.role;
   const from = location.state?.from || '/register';
 
+  // Present only when the server runs in OTP fallback (demo) mode —
+  // the code is shown on screen instead of being emailed.
+  const [debugOtp, setDebugOtp] = useState(location.state?.devOtp || null);
+
   const {
     handleSubmit,
     setValue,
@@ -53,6 +57,13 @@ export function OtpVerification() {
       setCanResend(true);
     }
   }, [countdown]);
+
+  // In fallback mode, prefill the code for the user (they can still see & edit it)
+  useEffect(() => {
+    if (debugOtp) {
+      setValue('code', debugOtp);
+    }
+  }, [debugOtp, setValue]);
 
   const onSubmit = async (data) => {
     setIsLoading(true);
@@ -97,12 +108,15 @@ export function OtpVerification() {
     if (!email) return;
 
     try {
+      let response;
       if (from === 'forgot-password') {
-        await authApi.forgotPassword(email);
+        response = await authApi.forgotPassword(email);
       } else {
         // Registration flow resends the OTP for the pending account.
-        await authApi.resendOtp(email);
+        response = await authApi.resendOtp(email);
       }
+      // Refresh the on-screen code in fallback mode
+      setDebugOtp(response?.devOtp || null);
       setCountdown(60);
       setCanResend(false);
       setValue('code', '');
@@ -171,12 +185,29 @@ export function OtpVerification() {
               </div>
               <CardTitle className="text-2xl text-center text-gray-900">Enter Verification Code</CardTitle>
               <CardDescription className="text-center text-gray-600">
-                We've sent a 6-digit code to<br />
-                <span className="font-medium text-gray-900">{email}</span>
+                {debugOtp ? (
+                  <>Messaging services are off — your 6-digit code is shown below</>
+                ) : (
+                  <>We've sent a 6-digit code to<br /><span className="font-medium text-gray-900">{email}</span></>
+                )}
               </CardDescription>
             </CardHeader>
 
             <CardContent className="px-6 sm:px-8">
+              {/* Fallback-mode notice: no mailer/SMS configured on the server */}
+              {debugOtp && (
+                <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded-lg text-center">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-amber-700 mb-1">
+                    📬 Email services are off
+                  </p>
+                  <p className="text-sm text-amber-800">Your verification code is</p>
+                  <p className="text-3xl font-bold tracking-[0.3em] text-amber-900 my-1 font-mono">
+                    {debugOtp}
+                  </p>
+                  <p className="text-xs text-amber-600">Usually this would arrive in your inbox at {email}</p>
+                </div>
+              )}
+
               {/* Error Display */}
               {error && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">

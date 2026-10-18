@@ -87,6 +87,11 @@ with the new password to confirm. Old admin sessions die immediately.
 
 **Used by:** registration + password-reset OTP emails.
 
+> 💡 **Optional!** As of v2.1.0, if Resend is not configured the API falls back
+> to showing OTPs on screen (demo mode). Skip this section until you have a
+> domain — note that Resend requires a **verified sending domain** to email
+> arbitrary users (`onboarding@resend.dev` only mails your own address).
+
 **Get a new one:**
 1. https://resend.com/api-keys → **Create API Key** (name it `kaamsetu-prod`)
 2. Sending domain: https://resend.com/domains → add/verify your domain (DNS records),
@@ -102,6 +107,9 @@ register a throwaway account and confirm the OTP email lands → **delete** the 
 ## 5. Twilio — `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
 
 **Used by:** SMS OTPs (job completion, phone verification).
+
+> 💡 **Optional!** Without Twilio the API falls back to showing phone OTPs on
+> screen (demo mode, v2.1.0). Skip this section until you're ready to pay for SMS.
 
 **Get a new auth token:**
 1. https://console.twilio.com → Account dashboard → **Auth Token** → *Request to

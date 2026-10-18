@@ -61,12 +61,14 @@ export function Register() {
       
       if (response.success && response.requiresVerification) {
         // Navigate to OTP verification page with email
-        navigate('/otp', { 
-          state: { 
+        // devOtp is only present when the server runs in OTP fallback mode
+        navigate('/otp', {
+          state: {
             email: data.email,
             role: role,
-            message: response.message 
-          } 
+            message: response.message,
+            devOtp: response.devOtp || null
+          }
         });
       }
     } catch (err) {

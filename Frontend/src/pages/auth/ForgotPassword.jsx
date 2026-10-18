@@ -24,8 +24,9 @@ export function ForgotPassword() {
     setIsLoading(true);
     setError('');
     try {
-      await authApi.forgotPassword(data.email);
-      navigate('/otp', { state: { email: data.email, from: 'forgot-password' } });
+      const response = await authApi.forgotPassword(data.email);
+      // devOtp is only present when the server runs in OTP fallback mode
+      navigate('/otp', { state: { email: data.email, from: 'forgot-password', devOtp: response.devOtp || null } });
     } catch (err) {
       setError(err.message || 'Unable to send reset code. Please try again.');
     } finally {

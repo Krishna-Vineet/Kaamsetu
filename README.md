@@ -67,7 +67,8 @@ It ships as **three production deployables**:
 - 🛡️ **Hardened API** — Helmet CSP, NoSQL-injection sanitization, HPP, CORS allowlist,
   dual rate limits, timing-safe admin auth, fail-fast env validation
 - 🖼️ **Cloudinary media pipeline** for profile photos & verification documents
-- 📧 **Transactional email** (Resend) + 📱 **SMS OTP** (Twilio, India +91 aware)
+- 📧 **Transactional email** (Resend) + 📱 **SMS OTP** (Twilio, India +91 aware) — *optional*:
+  without them the platform runs in a zero-cost **demo mode** where OTPs appear right on screen
 - 🩺 **`/health` endpoint** with DB state for uptime monitoring; graceful 503 + auto-reconnect on DB outage
 
 ---
@@ -146,6 +147,11 @@ JWT_REFRESH_SECRET=<another 96-char hex>
 ADMIN_PASSWORD=<long random password>
 ADMIN_JWT_SECRET=<another 96-char hex>
 ```
+
+> 💡 **No email/SMS provider? No problem.** Without `RESEND_API_KEY`/`TWILIO_*`,
+> KaamSetu runs in demo mode: verification codes are shown right on the OTP
+> screen ("📬 Email services are off — your verification code is…"). Add Resend
+> later and real delivery switches on automatically — no code changes.
 
 ---
 

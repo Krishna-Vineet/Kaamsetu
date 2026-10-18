@@ -3,6 +3,34 @@
 All notable changes to KaamSetu are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [2.1.0] — 2026-10-18 — "Zero-Cost Demo Mode" 📬
+
+### ✨ Added
+
+- **OTP fallback delivery mode** — when Resend/Twilio are not configured (or
+  `OTP_FALLBACK_TO_RESPONSE=true` is set), OTPs are returned in API responses
+  (`devOtp`) instead of crashing or silently failing. The OTP screen shows a
+  prominent amber banner — *"📬 Email services are off — your verification code
+  is …"* — and prefills the code. Covers registration, OTP resend, password
+  reset and phone-number changes, so the whole platform works end-to-end with
+  **zero messaging spend**; add Resend later and it switches to real delivery
+  automatically.
+- Boot logs now warn loudly whenever fallback delivery is active.
+- OTP-issuing endpoints return `delivery: "email" | "sms" | "response"` so
+  clients can render the right UX.
+
+### 🐛 Fixes
+
+- Removed a remaining plaintext phone-OTP log line in `client.js`.
+- Register responses now include the account `email` (fixes the mobile hook
+  flow that read `data.email`).
+
+### ⚠️ Security note
+
+Fallback mode trades proof-of-inbox for zero-config demos: **anyone can verify
+or reset any account while it's active**. Enable Resend before production use.
+See [SECURITY.md](SECURITY.md).
+
 ## [2.0.0] — 2026-10-18 — "Production Hardening" 🚀
 
 First independently-maintained release after the project was taken over from the

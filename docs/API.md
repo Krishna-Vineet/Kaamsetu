@@ -47,6 +47,12 @@ Rate limits: **300 req / 15 min** globally, **50 req / 15 min** on `/auth/*` and
 | POST | `/auth/verify-reset-otp` | — | `{ data, code }` → `{ resetToken }` (10 min, purpose-scoped) |
 | POST | `/auth/reset-password` | — | `{ resetToken, password }` → sets new password |
 
+> 📬 **OTP delivery modes** — every OTP-issuing endpoint includes
+> `delivery: "email" | "sms" | "response"` in its JSON. When email/SMS providers
+> aren't configured (demo/fallback mode), `delivery` is `"response"` and the
+> OTP itself is included as `devOtp` so the UI can display it. Never log or
+> persist `devOtp`.
+
 ### Examples
 
 ```bash

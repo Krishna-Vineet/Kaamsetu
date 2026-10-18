@@ -28,6 +28,11 @@ You can expect an acknowledgement within 72 hours.
 
 ## Known limitations / hardening roadmap
 
+- **OTP fallback mode** (v2.1.0): when Resend/Twilio are not configured — or
+  `OTP_FALLBACK_TO_RESPONSE=true` — OTPs are returned in API responses and shown
+  in the UI. In this mode email/SMS ownership is NOT verified, so anyone can
+  register or reset any account. Great for demos; **do not run production this
+  way**. Configure Resend (`RESEND_API_KEY` + `EMAIL_FROM`) to disable it.
 - In-memory rate limiting resets per instance — move to Redis/Upstash for multi-instance.
 - Local-disk `uploads/` are not suited to serverless — migrate fully to Cloudinary storage.
 - No account lockout yet beyond OTP attempt caps; consider per-account login throttling.

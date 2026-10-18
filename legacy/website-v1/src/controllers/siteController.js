@@ -1,7 +1,7 @@
 
 import {User} from '../models/User.js';
 import { generateToken } from '../utils/jwtUtils.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 
 
@@ -22,22 +22,11 @@ export const renderTerms = (req, res) => {
 };
 
 export const renderLogin = (req, res) => {
-
-  if (req?.user) {
-    try {
-      const user = awaitUser.findById(req.user._id);
-      
-      // Redirect based on role
-      if (user) res.redirectUrl(`/${user.role}/dashboard/${user._id}`);
-    } catch (err) {
-      console.error('Invalid token:', err.message);
-      // If token is invalid, render login page
-      res.status(401).sendFile('src/public/html/login.html', { root: '.' });
-    }
-  } else {
-    // No token, render login page
-    res.status(401).sendFile('src/public/html/login.html', { root: '.' });
-  }
+  // authMiddleware already redirects authenticated users straight to their
+  // dashboard, so by the time we get here we simply show the login page.
+  // (Legacy fix: previously this contained an unreachable, broken `awaitUser`
+  // lookup and served the page with a 401 status.)
+  res.sendFile('src/public/html/login.html', { root: '.' });
 };
 
 export const renderClientRegistration = (req, res) => {

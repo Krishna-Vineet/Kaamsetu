@@ -7,12 +7,22 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### ✨ Added
 
+- **Run v1 locally** — the archived EJS app now boots on modern Node with or
+  without a database (view-only demo mode for the marketing pages). Added
+  `legacy/website-v1/.env.example` and run instructions in `legacy/README.md`.
+  Compat fixes: native `bcrypt` → `bcryptjs`, DB-less boot, login page returns 200.
 - **`npm run env:check`** — env doctor (`Backend/scripts/check-env.mjs`) that
   audits `Backend/.env` exactly as the server loads it: per-variable status
   with masked values, plus forensics for the classic setup killers (`.env` in
   the wrong folder, UTF-8 BOM, smart “quotes” from Windows editors, and
   unrecognised/typo'd variable names like `MONGO_URI`).
 - Boot failure message now points at `env:check` and lists the common causes.
+
+### 🐛 Fixes
+
+- Admin panel: `useAuthNavigation().login()` swallowed the session token, so
+  every admin API call went out unauthenticated (401). Tokens are now persisted
+  and any 401 outside `/admin/verify` redirects to the login screen.
 
 ## [2.1.0] — 2026-10-18 — "Zero-Cost Demo Mode" 📬
 

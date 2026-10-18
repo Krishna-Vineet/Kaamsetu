@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
@@ -5,10 +6,13 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { authApi } from '../../api/auth';
 import { logo } from '@/assets/assets';
 
 export function ForgotPassword() {
   const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const {
     register,
@@ -16,8 +20,18 @@ export function ForgotPassword() {
     formState: { errors }
   } = useForm();
 
-  const onSubmit = (data) => {
-    navigate('/otp', { state: { email: data.email, from: 'forgot-password' } });
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      const response = await authApi.forgotPassword(data.email);
+      // devOtp is only present when the server runs in OTP fallback mode
+      navigate('/otp', { state: { email: data.email, from: 'forgot-password', devOtp: response.devOtp || null } });
+    } catch (err) {
+      setError(err.message || 'Unable to send reset code. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -66,6 +80,11 @@ export function ForgotPassword() {
             </CardHeader>
 
             <CardContent className="px-6 sm:px-8">
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600 text-center">{error}</p>
+                </div>
+              )}
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email or Phone</Label>
@@ -77,7 +96,7 @@ export function ForgotPassword() {
                       placeholder="Enter your email or phone number"
                       autoComplete="email"
                       className={`pl-10 h-12 rounded-lg border-gray-200 bg-white/80 text-gray-900 placeholder-gray-500 focus:border-[#445FA2] focus:ring-[#445FA2] transition-all duration-200 backdrop-blur-sm ${errors.email ? 'border-red-500' : ''}`}
-                      {...register('email')}
+                      {...register('email', { required: 'Email is required' })}
                     />
                   </div>
                   {errors.email && (
@@ -87,9 +106,10 @@ export function ForgotPassword() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-[#445FA2] to-[#009889] hover:from-[#445FA2]/90 hover:to-[#009889]/90 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-gradient-to-r from-[#445FA2] to-[#009889] hover:from-[#445FA2]/90 hover:to-[#009889]/90 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-60"
                 >
-                  Send Reset Code
+                  {isLoading ? 'Sending…' : 'Send Reset Code'}
                 </Button>
               </form>
 

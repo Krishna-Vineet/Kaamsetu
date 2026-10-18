@@ -45,7 +45,9 @@ export const ENDPOINTS = {
     register: '/auth/register',
     logout: '/auth/logout',
     verifyOtp: '/auth/verify-otp',
+    resendOtp: '/auth/resend-otp',
     forgotPassword: '/auth/forgot-password',
+    verifyResetOtp: '/auth/verify-reset-otp',
     resetPassword: '/auth/reset-password'
   },
   jobs: {

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import Client from '../models/Client.js';
 import Worker from '../models/Worker.js';
+import { getCookieOptions, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from '../utils/cookieOptions.js';
 
 export const authenticateToken = async (req, res, next) => {
   try {
@@ -16,7 +17,6 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     if (!token) {
-      console.log('No token provided');
       return res.status(401).json({
         success: false,
         message: 'Access denied. No token provided.'
@@ -44,7 +44,6 @@ export const authenticateToken = async (req, res, next) => {
     }
 
     if (!user || user.isTemporary) {
-      console.log('User not found or temporary:', decoded.userId);
       return res.status(401).json({
         success: false,
         message: 'Invalid token.'
@@ -69,7 +68,6 @@ export const authenticateToken = async (req, res, next) => {
     // Refresh the access token on every API call to extend session
     refreshAccessToken(req, res);
 
-    console.log('User authenticated:', req.user);
     next();
   } catch (error) {
     console.error('Token verification error:', error);
@@ -91,12 +89,7 @@ const refreshAccessToken = (req, res) => {
     );
     
     // Set the new access token as a cookie
-    res.cookie('access_token', accessToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: 60 * 60 * 1000 // 1 hour
-    });
+    res.cookie('access_token', accessToken, getCookieOptions(ACCESS_TOKEN_TTL));
   } catch (error) {
     console.error('Error refreshing access token:', error);
     // Continue with the request even if token refresh fails
@@ -151,19 +144,8 @@ const refreshAndContinue = async (req, res, next) => {
     );
     
     // Set new tokens as cookies
-    res.cookie('access_token', accessToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: 60 * 60 * 1000 // 1 hour
-    });
-    
-    res.cookie('refresh_token', newRefreshToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+    res.cookie('access_token', accessToken, getCookieOptions(ACCESS_TOKEN_TTL));
+    res.cookie('refresh_token', newRefreshToken, getCookieOptions(REFRESH_TOKEN_TTL));
     
     // Set user in request
     req.user = {
@@ -172,8 +154,7 @@ const refreshAndContinue = async (req, res, next) => {
       email: user.email.email,
       name: user.name
     };
-    
-    console.log('Tokens refreshed for user:', req.user);
+
     next();
   } catch (error) {
     console.error('Error refreshing tokens:', error);

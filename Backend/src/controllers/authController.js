@@ -4,13 +4,13 @@ import OTP from '../models/OTP.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { Resend } from "resend";
+import { getCookieOptions, ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL, REMEMBER_ME_REFRESH_TTL } from '../utils/cookieOptions.js';
+import { emailFallbackActive, otpDeliveryInfo, FALLBACK_MESSAGE } from '../utils/otpDelivery.js';
 
 // POST /api/auth/register
 export const register = async (req, res) => {
   try {
     const { name, email, phone, role, password } = req.body;
-
-    console.log('Registration attempt:', { name, email, phone, role });
 
     // Validate input
     const missingFields = [];
@@ -73,13 +73,24 @@ export const register = async (req, res) => {
         const otp = new OTP({ data: email.toLowerCase(), code: otpCode });
         await otp.save();
 
-        // Send OTP email (use existing name on the temp account if present)
+        // Deliver — real email, or fallback response when mail is not configured
+        if (emailFallbackActive()) {
+          return res.status(200).json({
+            success: true,
+            message: FALLBACK_MESSAGE,
+            requiresVerification: true,
+            email: email.toLowerCase(),
+            ...otpDeliveryInfo('response', otpCode)
+          });
+        }
         await sendOTPEmail(email, otpCode, existingUser.name || name);
 
         return res.status(200).json({
           success: true,
           message: 'OTP resent. Please verify your email.',
-          requiresVerification: true
+          requiresVerification: true,
+          email: email.toLowerCase(),
+          ...otpDeliveryInfo('email')
         });
       } catch (err) {
         console.error('Error resending OTP for temporary user:', err);
@@ -118,16 +129,25 @@ export const register = async (req, res) => {
       code: otpCode
     });
     await otp.save();
-    console.log('OTP generated and saved');
 
-    // Send OTP email
+    // Deliver — real email, or fallback response when mail is not configured
+    if (emailFallbackActive()) {
+      return res.json({
+        success: true,
+        message: FALLBACK_MESSAGE,
+        requiresVerification: true,
+        email: email.toLowerCase(),
+        ...otpDeliveryInfo('response', otpCode)
+      });
+    }
     await sendOTPEmail(email, otpCode, name);
-    console.log('OTP email sent');
 
     res.json({
       success: true,
       message: 'Registration initiated. Please verify your email.',
-      requiresVerification: true
+      requiresVerification: true,
+      email: email.toLowerCase(),
+      ...otpDeliveryInfo('email')
     });
 
   } catch (error) {
@@ -144,7 +164,7 @@ export const verifyOTP = async (req, res) => {
   try {
     const { data, code } = req.body;
 
-    console.log('OTP verification attempt:', { data, code });
+    // NOTE: never log the OTP itself — treat it like a password.
 
     if (!data || !code) {
       const missingFields = [];
@@ -216,12 +236,11 @@ export const verifyOTP = async (req, res) => {
     }
 
     if (!user) {
-      console.log('User not found during OTP verification:', data);
-      // Don't reveal that the email doesn't exist for security reasons
-      console.log('Password reset requested for non-existent email:', email);
-      return res.status(200).json({
-        success: true,
-        message: 'If an account exists with this email, you will receive a password reset link.'
+      console.log('OTP verified but no user found for:', data);
+      return res.status(404).json({
+        success: false,
+        message: 'No account found for this email. Please register first.',
+        code: 'USER_NOT_FOUND'
       });
     }
 
@@ -248,21 +267,9 @@ export const verifyOTP = async (req, res) => {
       { expiresIn: '7d' }
     );
 
-    // Set access token cookie
-    res.cookie('access_token', accessToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: 60 * 60 * 1000 // 1 hour
-    });
-    
-    // Set refresh token cookie
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
+    // Set auth cookies (secure-by-default: httpOnly + secure)
+    res.cookie('access_token', accessToken, getCookieOptions(ACCESS_TOKEN_TTL));
+    res.cookie('refresh_token', refreshToken, getCookieOptions(REFRESH_TOKEN_TTL));
 
     res.json({
       success: true,
@@ -288,10 +295,12 @@ export const verifyOTP = async (req, res) => {
 // POST /api/auth/logout
 export const logout = async (req, res) => {
   try {
-    // Clear all auth cookies
-    res.clearCookie('token');
-    res.clearCookie('access_token');
-    res.clearCookie('refresh_token');
+    // Clear all auth cookies (options must match the ones they were set with)
+    const base = getCookieOptions();
+    delete base.maxAge;
+    res.clearCookie('token', base);
+    res.clearCookie('access_token', base);
+    res.clearCookie('refresh_token', base);
     
     res.json({
       success: true,
@@ -421,34 +430,9 @@ export const refreshToken = async (req, res) => {
       { expiresIn: '7d' }
     );
     
-    // Common cookie options from environment variables
-    const cookieOptions = {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      domain: process.env.COOKIE_DOMAIN || 'localhost',
-      path: '/',
-    };
-    
-    // In production, ensure secure and sameSite are properly set
-    if (process.env.NODE_ENV === 'production') {
-      cookieOptions.secure = true;
-      if (process.env.COOKIE_SAME_SITE === 'none') {
-        cookieOptions.sameSite = 'none';
-      }
-    }
-
-    // Set access token cookie
-    res.cookie('access_token', accessToken, {
-      ...cookieOptions,
-      maxAge: 60 * 60 * 1000, // 1 hour
-    });
-    
-    // Set refresh token cookie
-    res.cookie('refresh_token', newRefreshToken, {
-      ...cookieOptions,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+    // Set new tokens as cookies (secure-by-default: httpOnly + secure)
+    res.cookie('access_token', accessToken, getCookieOptions(ACCESS_TOKEN_TTL));
+    res.cookie('refresh_token', newRefreshToken, getCookieOptions(REFRESH_TOKEN_TTL));
     
     res.json({
       success: true,
@@ -553,23 +537,10 @@ export const login = async (req, res) => {
       { expiresIn: rememberMe ? '30d' : '7d' }
     );
 
-    // Set access token as HTTP-only cookie
-    res.cookie('access_token', accessToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: 60 * 60 * 1000 // 1 hour
-    });
-    
-    // Set refresh token as HTTP-only cookie
-    res.cookie('refresh_token', refreshToken, {
-      httpOnly: process.env.COOKIE_HTTP_ONLY === 'true',
-      secure: process.env.COOKIE_SECURE === 'true',
-      sameSite: process.env.COOKIE_SAME_SITE || 'none',
-      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 7 * 24 * 60 * 60 * 1000 // 30 or 7 days
-    });
-
-    console.log('Login successful for user:', user._id);
+    // Set auth cookies (secure-by-default: httpOnly + secure)
+    res.cookie('access_token', accessToken, getCookieOptions(ACCESS_TOKEN_TTL));
+    res.cookie('refresh_token', refreshToken,
+      getCookieOptions(rememberMe ? REMEMBER_ME_REFRESH_TTL : REFRESH_TOKEN_TTL));
 
     res.json({
       success: true,
@@ -596,13 +567,364 @@ export const login = async (req, res) => {
 
 
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Password reset flow
+//
+//   1. POST /auth/forgot-password   { email }            -> emails a 6-digit OTP
+//   2. POST /auth/verify-reset-otp  { data, code }       -> returns a short-lived resetToken
+//   3. POST /auth/reset-password    { resetToken, password } -> updates the password
+//
+// The resetToken is a purpose-scoped JWT (10 min) — it can ONLY be used to
+// reset a password, never to authenticate.
+// ─────────────────────────────────────────────────────────────────────────────
+
+// POST /auth/resend-otp
+// Resends a registration OTP for a temporary (unverified) account.
+export const resendOtp = async (req, res) => {
+  try {
+    const { data } = req.body;
+
+    if (!data) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required',
+        code: 'MISSING_FIELDS'
+      });
+    }
+
+    const email = data.toLowerCase();
+
+    // Only resend for temporary (mid-registration) accounts
+    let user = await Client.findOne({ 'email.email': email, isTemporary: true });
+    if (!user) {
+      user = await Worker.findOne({ 'email.email': email, isTemporary: true });
+    }
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'No pending registration found for this email.',
+        code: 'NO_PENDING_REGISTRATION'
+      });
+    }
+
+    const existing = await OTP.findOne({ data: email });
+    if (existing && existing.resendCount >= 5) {
+      return res.status(429).json({
+        success: false,
+        message: 'Too many OTP requests. Please wait a few minutes and try again.',
+        code: 'RATE_LIMITED'
+      });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    await OTP.deleteMany({ data: email });
+    await new OTP({
+      data: email,
+      code: otpCode,
+      resendCount: existing ? existing.resendCount + 1 : 0
+    }).save();
+
+    if (emailFallbackActive()) {
+      return res.status(200).json({
+        success: true,
+        message: FALLBACK_MESSAGE,
+        ...otpDeliveryInfo('response', otpCode)
+      });
+    }
+    await sendOTPEmail(email, otpCode, user.name);
+
+    return res.status(200).json({
+      success: true,
+      message: 'A new verification code has been sent.',
+      ...otpDeliveryInfo('email')
+    });
+  } catch (error) {
+    console.error('Resend OTP error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to resend the code. Please try again later.'
+    });
+  }
+};
+
+const RESET_TOKEN_TTL = '10m';
+
+const findPermanentUserByEmail = async (email) => {
+  let user = await Client.findOne({ 'email.email': email.toLowerCase(), isTemporary: false });
+  if (user) return { user, role: 'client' };
+  user = await Worker.findOne({ 'email.email': email.toLowerCase(), isTemporary: false });
+  if (user) return { user, role: 'worker' };
+  return { user: null, role: null };
+};
+
+// POST /auth/forgot-password
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required',
+        code: 'MISSING_FIELDS'
+      });
+    }
+
+    const { user } = await findPermanentUserByEmail(email);
+
+    // Anti-enumeration: identical response whether or not the account exists.
+    if (!user) {
+      return res.status(200).json({
+        success: true,
+        email,
+        message: 'If an account exists with this email, a reset code is on its way.'
+      });
+    }
+
+    // Throttle: max 5 resends per 10-minute window.
+    const existing = await OTP.findOne({ data: email.toLowerCase() });
+    if (existing && existing.resendCount >= 5) {
+      return res.status(429).json({
+        success: false,
+        message: 'Too many reset requests. Please wait a few minutes and try again.',
+        code: 'RATE_LIMITED'
+      });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    await OTP.deleteMany({ data: email.toLowerCase() });
+    await new OTP({
+      data: email.toLowerCase(),
+      code: otpCode,
+      resendCount: existing ? existing.resendCount + 1 : 0
+    }).save();
+
+    if (emailFallbackActive()) {
+      return res.status(200).json({
+        success: true,
+        email,
+        message: FALLBACK_MESSAGE,
+        ...otpDeliveryInfo('response', otpCode)
+      });
+    }
+    await sendPasswordResetEmail(email, otpCode, user.name);
+
+    return res.status(200).json({
+      success: true,
+      email,
+      message: 'If an account exists with this email, a reset code is on its way.',
+      ...otpDeliveryInfo('email')
+    });
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to process the reset request. Please try again later.'
+    });
+  }
+};
+
+// POST /auth/verify-reset-otp
+export const verifyResetOtp = async (req, res) => {
+  try {
+    const { data, code } = req.body;
+
+    if (!data || !code) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email and OTP are required',
+        code: 'MISSING_FIELDS'
+      });
+    }
+
+    const otpRecord = await OTP.findOne({ data: data.toLowerCase() });
+
+    if (!otpRecord) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired OTP',
+        code: 'INVALID_OTP'
+      });
+    }
+
+    if (otpRecord.attempts >= 3) {
+      await OTP.deleteOne({ _id: otpRecord._id });
+      return res.status(400).json({
+        success: false,
+        message: 'Too many failed attempts. Please request a new code.',
+        code: 'MAX_ATTEMPTS_REACHED'
+      });
+    }
+
+    if (otpRecord.code !== code) {
+      otpRecord.attempts += 1;
+      await otpRecord.save();
+      const remainingAttempts = 3 - otpRecord.attempts;
+      return res.status(400).json({
+        success: false,
+        message: remainingAttempts > 0
+          ? `The OTP you entered is incorrect. You have ${remainingAttempts} ${remainingAttempts === 1 ? 'attempt' : 'attempts'} remaining.`
+          : 'You have used all your OTP attempts. Please request a new code.',
+        code: 'INCORRECT_OTP',
+        remainingAttempts,
+        canRetry: remainingAttempts > 0
+      });
+    }
+
+    const { user, role } = await findPermanentUserByEmail(data);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found for this email.',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    // One OTP, one reset token — prevent replay.
+    await OTP.deleteOne({ _id: otpRecord._id });
+
+    const resetToken = jwt.sign(
+      { userId: user._id, role, purpose: 'password-reset' },
+      process.env.JWT_SECRET,
+      { expiresIn: RESET_TOKEN_TTL }
+    );
+
+    return res.status(200).json({
+      success: true,
+      resetToken,
+      message: 'OTP verified. You can now set a new password.'
+    });
+  } catch (error) {
+    console.error('Verify reset OTP error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'OTP verification failed. Please try again.'
+    });
+  }
+};
+
+// POST /auth/reset-password
+export const resetPassword = async (req, res) => {
+  try {
+    const { resetToken, password } = req.body;
+
+    if (!resetToken || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Reset token and new password are required',
+        code: 'MISSING_FIELDS'
+      });
+    }
+
+    if (typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        message: 'Password must be at least 8 characters long.',
+        code: 'WEAK_PASSWORD'
+      });
+    }
+
+    let decoded;
+    try {
+      decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
+    } catch (error) {
+      return res.status(400).json({
+        success: false,
+        message: error.name === 'TokenExpiredError'
+          ? 'Your reset session has expired. Please request a new code.'
+          : 'Invalid reset session. Please start over.',
+        code: 'INVALID_OR_EXPIRED_TOKEN',
+        canRetry: true
+      });
+    }
+
+    if (decoded.purpose !== 'password-reset') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid reset session. Please start over.',
+        code: 'INVALID_OR_EXPIRED_TOKEN'
+      });
+    }
+
+    const Model = decoded.role === 'client' ? Client : Worker;
+    const user = await Model.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Account not found.',
+        code: 'USER_NOT_FOUND'
+      });
+    }
+
+    user.password = await bcrypt.hash(password, 12);
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Password reset successfully. You can now log in with your new password.'
+    });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Unable to reset the password. Please try again later.'
+    });
+  }
+};
+
+export const sendPasswordResetEmail = async (email, otp, name) => {
+  try {
+    const resend = getResend();
+    const { data, error } = await resend.emails.send({
+      from: `${process.env.EMAIL_FROM_NAME || "KaamSetu"} <${process.env.EMAIL_FROM}>`,
+      to: [email],
+      subject: "Reset Your Password - KaamSetu",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <h2>Password reset request</h2>
+          <p>Hi ${name || "there"}, use the code below to reset your KaamSetu password:</p>
+          <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; color: #333; border-radius: 5px;">
+            ${otp}
+          </div>
+          <p>This code expires in 10 minutes. If you didn't request this, you can safely ignore this email — your password won't change.</p>
+        </div>
+      `,
+    });
+
+    if (error) {
+      console.error("❌ Error sending password reset email:", error);
+      throw error;
+    }
+
+    console.log("✅ Password reset email sent:", data?.id || email);
+  } catch (err) {
+    console.error("❌ Unexpected error in sendPasswordResetEmail:", err);
+    throw err;
+  }
+};
+
 // Mail send
 
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Mail client is created lazily so a missing RESEND_API_KEY doesn't crash
+// the whole API at boot — only endpoints that actually send mail surface a
+// clear configuration error.
+let resendClient = null;
+const getResend = () => {
+  if (!process.env.RESEND_API_KEY) {
+    throw new Error('RESEND_API_KEY is not configured — cannot send email.');
+  }
+  if (!resendClient) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resendClient;
+};
 
 export const sendOTPEmail = async (email, otp, name) => {
   try {
+    const resend = getResend();
     const { data, error } = await resend.emails.send({
       from: `${process.env.EMAIL_FROM_NAME || "KaamSetu"} <${process.env.EMAIL_FROM}>`,
       to: [email],

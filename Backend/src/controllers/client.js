@@ -7,6 +7,7 @@ import { generateOTP } from '../utils/otp.js'
 import { uploadProfilePicture as uploadProfilePictureToCloudinary, uploadAadhaarDocument as uploadAadhaarDocumentToCloudinary, deleteFromCloudinary, extractPublicId } from '../utils/cloudinaryUpload.js'
 import bcrypt from 'bcryptjs'
 import { sendSMS } from '../services/smsService.js'
+import { smsFallbackActive, otpDeliveryInfo, FALLBACK_MESSAGE } from '../utils/otpDelivery.js'
 
 // Get client profile
 const getProfile = async (req, res) => {
@@ -605,19 +606,27 @@ const sendUpdatePhoneOtp = async (req, res) => {
     });
     
     await otpDoc.save();
-    console.log(`Phone OTP for ${phone}: ${code}`);
+    // NOTE: never log the OTP itself — treat it like a password.
+
+    // Fallback: SMS not configured — return the code to display in the UI
+    if (smsFallbackActive()) {
+      return res.json({
+        success: true,
+        message: FALLBACK_MESSAGE,
+        ...otpDeliveryInfo('response', code)
+      });
+    }
 
     // Send SMS via Twilio
     try {
       const result = await sendSMS(phone, 'VERIFICATION', { code });
       console.log(`SMS sent to ${phone}. SID:`, result.sid || '(skipped)');
-      
-      res.json({ 
-        success: true, 
+
+      res.json({
+        success: true,
         message: 'Verification code has been sent to your phone',
         code: 'SMS_SENT_SUCCESSFULLY',
-        // In production, don't include these in the response
-        _debug: process.env.NODE_ENV === 'development' ? { code } : undefined
+        ...otpDeliveryInfo('sms')
       });
       
     } catch (smsError) {

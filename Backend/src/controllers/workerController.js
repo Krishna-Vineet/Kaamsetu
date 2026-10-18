@@ -4,6 +4,7 @@ import Review from '../models/Review.js';
 import OTP from '../models/OTP.js';
 import bcrypt from 'bcryptjs';
 import { sendSMS } from '../services/smsService.js';
+import { smsFallbackActive, otpDeliveryInfo, FALLBACK_MESSAGE } from '../utils/otpDelivery.js';
 import { generateOTP } from '../utils/otp.js';
 import { uploadProfilePicture as uploadProfilePictureToCloudinary, uploadAadhaarDocument as uploadAadhaarDocumentToCloudinary, deleteFromCloudinary, extractPublicId } from '../utils/cloudinaryUpload.js';
 
@@ -328,6 +329,15 @@ export const sendUpdatePhoneOtp = async (req, res) => {
     await OTP.deleteMany({ data: phone });
     const otp = new OTP({ data: phone, code });
     await otp.save();
+
+    // Fallback: SMS not configured — return the code to display in the UI
+    if (smsFallbackActive()) {
+      return res.json({
+        success: true,
+        message: FALLBACK_MESSAGE,
+        ...otpDeliveryInfo('response', code)
+      });
+    }
 
     // Send SMS via Twilio
     try {

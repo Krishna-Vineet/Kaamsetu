@@ -484,7 +484,10 @@ export const getAvailableJobs = async (req, res) => {
     // Build query for posted jobs only
     const query = {
       status: 'posted',
-      workerId: null // Not assigned
+      workerId: null, // Not assigned
+      // Defensive scope: if this DB is shared with the archived v1 app,
+      // v1-era jobs have no clientId — never surface them here.
+      clientId: { $exists: true, $ne: null }
     };
 
     // Handle skill filtering - "For you" means jobs matching worker's skills

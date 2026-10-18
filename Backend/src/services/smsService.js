@@ -15,7 +15,18 @@ if (NODE_ENV !== 'production') {
   console.log(`Twilio config - SID: ${maskedSid}, TOKEN: ${maskedToken}, FROM: ${TWILIO_PHONE_NUMBER || '<missing>'}`);
 }
 
-const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+// Lazy client — avoids crashing the API at boot when Twilio isn't configured
+// (only the SMS-sending path surfaces a clear error).
+let twilioClient = null;
+const getClient = () => {
+  if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
+    throw new Error('Twilio is not configured — set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.');
+  }
+  if (!twilioClient) {
+    twilioClient = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+  }
+  return twilioClient;
+};
 
 const SMS_TEMPLATES = {
   VERIFICATION: (code) => `Your KaamSetu verification code is: ${code}. Valid for 10 minutes.`,
@@ -30,7 +41,7 @@ export const sendSMS = async (to, type, data) => {
   }
 
   try {
-    const message = await client.messages.create({
+    const message = await getClient().messages.create({
       body: SMS_TEMPLATES[type](data.code),
       from: TWILIO_PHONE_NUMBER,
       to: formatPhoneNumber(to)

@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 // Cache for distance calculations to avoid repeated API calls
 const distanceCache = new Map();
 
@@ -39,24 +37,34 @@ export async function calculateRoadDistance(lat1, lon1, lat2, lon2) {
     return distanceCache.get(cacheKey);
   }
 
-  try {
-    // Use OpenRouteService API for road distance
-    const response = await axios.get('https://api.openrouteservice.org/v2/directions/driving-car', {
-      params: {
-        api_key: process.env.OPENROUTESERVICE_API_KEY || '5b3ce3597851110001cf6248a1b8c4b7e8a14a6b9b6e4e3c8b5a7d9e',
-        start: `${lon1},${lat1}`,
-        end: `${lon2},${lat2}`
-      },
-      timeout: 5000 // 5 second timeout
-    });
+  // Never hardcode API keys — set OPENROUTESERVICE_API_KEY in the environment.
+  // Without a key we fall back to straight-line (Haversine) distance.
+  const apiKey = process.env.OPENROUTESERVICE_API_KEY;
+  if (!apiKey) {
+    const fallback = calculateHaversineDistance(lat1, lon1, lat2, lon2);
+    distanceCache.set(cacheKey, fallback);
+    return fallback;
+  }
 
-    if (response.data && response.data.features && response.data.features[0]) {
-      const distanceMeters = response.data.features[0].properties.segments[0].distance;
-      const distanceKm = distanceMeters / 1000;
-      
-      // Cache the result
-      distanceCache.set(cacheKey, distanceKm);
-      return distanceKm;
+  try {
+    // Use OpenRouteService API for road distance (native fetch with 5s timeout)
+    const url = new URL('https://api.openrouteservice.org/v2/directions/driving-car');
+    url.searchParams.set('api_key', apiKey);
+    url.searchParams.set('start', `${lon1},${lat1}`);
+    url.searchParams.set('end', `${lon2},${lat2}`);
+
+    const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+
+    if (response.ok) {
+      const data = await response.json();
+      if (data.features && data.features[0]) {
+        const distanceMeters = data.features[0].properties.segments[0].distance;
+        const distanceKm = distanceMeters / 1000;
+
+        // Cache the result
+        distanceCache.set(cacheKey, distanceKm);
+        return distanceKm;
+      }
     }
   } catch (error) {
     console.log('OpenRouteService API failed, falling back to Haversine:', error.message);

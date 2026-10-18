@@ -2,6 +2,8 @@ import Client from '../models/Client.js';
 import Worker from '../models/Worker.js';
 import Job from '../models/Job.js';
 import Review from '../models/Review.js';
+import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -276,15 +278,44 @@ export const deleteReview = async (req, res) => {
 };
 
 // POST /admin/verify
+// Exchanges the admin password for a short-lived admin JWT.
+// Uses a timing-safe comparison to avoid leaking the password via response latency.
+const ADMIN_SESSION_TTL_SECONDS = parseInt(process.env.ADMIN_SESSION_TTL || '7200', 10); // 2h default
+
+const timingSafeStringEqual = (a, b) => {
+  const bufA = crypto.createHash('sha256').update(String(a)).digest();
+  const bufB = crypto.createHash('sha256').update(String(b)).digest();
+  return crypto.timingSafeEqual(bufA, bufB);
+};
+
 export const verifyAdminPassword = (req, res) => {
   try {
     const { password } = req.body;
     if (!password) {
       return res.status(400).json({ success: false, message: 'Password is required' });
     }
-    
-    const isMatch = password === process.env.ADMIN_PASSWORD;
-    return res.json({ success: true, isMatch });
+    if (!process.env.ADMIN_PASSWORD) {
+      console.error('ADMIN_PASSWORD env var is not set — admin login permanently disabled.');
+      return res.status(503).json({ success: false, message: 'Admin access is not configured on the server.' });
+    }
+
+    const isMatch = timingSafeStringEqual(password, process.env.ADMIN_PASSWORD);
+    if (!isMatch) {
+      return res.status(401).json({ success: false, isMatch: false, message: 'Invalid password' });
+    }
+
+    const token = jwt.sign(
+      { role: 'admin' },
+      process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET,
+      { expiresIn: ADMIN_SESSION_TTL_SECONDS }
+    );
+
+    return res.json({
+      success: true,
+      isMatch: true,
+      token,
+      expiresIn: ADMIN_SESSION_TTL_SECONDS
+    });
   } catch (error) {
     console.error('Admin password verification error:', error);
     return res.status(500).json({ success: false, message: 'Failed to verify admin password' });

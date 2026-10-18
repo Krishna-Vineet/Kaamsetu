@@ -1,13 +1,15 @@
 {
-  "name": "kaamsetu-server",
-  "version": "1.0.0",
-  "description": "KaamSetu backend server",
+  "name": "kaamsetu-api",
+  "version": "2.0.0",
+  "description": "KaamSetu REST API — hyperlocal skilled-worker marketplace",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "jest"
+    "env:check": "node scripts/check-env.mjs",
+    "test": "jest",
+    "seed": "node scripts/seed-demo.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
@@ -36,5 +38,7 @@
   "devDependencies": {
     "jest": "^29.7.0",
     "nodemon": "^3.0.1"
-  }
+  },
+  "author": "Vineet (https://github.com/Krishna-Vineet)",
+  "license": "MIT"
 }

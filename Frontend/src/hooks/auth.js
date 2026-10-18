@@ -43,7 +43,7 @@ export const useAuth = () => {
     },
     onSuccess: (data) => {
       toast.success("Registration successful! Please verify your email.");
-      navigate("/otp", { state: { email: data.email } });
+      navigate("/otp", { state: { email: data.email, devOtp: data.devOtp || null } });
     },
     onError: (error) => {
       const message = getErrorMessage(error);

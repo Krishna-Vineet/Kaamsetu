@@ -14,11 +14,16 @@ import {
   deleteReview,
   verifyAdminPassword
 } from '../controllers/adminController.js';
+import { authenticateAdmin } from '../middleware/adminAuth.js';
 
 const router = express.Router();
 
-// Public route for admin password verification
+// Public route for admin password verification (rate-limited in index.js).
+// Exchanges the admin password for a short-lived admin JWT.
 router.post('/verify', verifyAdminPassword);
+
+// Everything below requires a valid admin JWT.
+router.use(authenticateAdmin);
 
 // Dashboard
 router.get('/stats', getStats);

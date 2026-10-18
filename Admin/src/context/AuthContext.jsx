@@ -3,6 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react"
 import { useNavigate } from "react-router-dom"
 import toast from "react-hot-toast"
+import { getAdminToken, setAdminToken, clearAdminToken } from "../lib/authToken"
 
 const AuthContext = createContext()
 
@@ -18,8 +19,10 @@ export const useAuthNavigation = () => {
   const navigate = useNavigate()
   const { isAuthenticated, login: loginFn, logout: logoutFn } = useAuth()
 
-  const login = useCallback(() => {
-    loginFn()
+  const login = useCallback((token) => {
+    // token comes from POST /admin/verify — without it the admin API
+    // has no Bearer credential and every call returns 401.
+    loginFn(token)
     navigate("/dashboard")
   }, [loginFn, navigate])
 
@@ -32,11 +35,13 @@ export const useAuthNavigation = () => {
 }
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [timeRemaining, setTimeRemaining] = useState(0)
+  // Restore the session if the tab was refreshed within the token lifetime.
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getAdminToken())
+  const [timeRemaining, setTimeRemaining] = useState(() => (getAdminToken() ? 600 : 0))
 
   // Logout function
   const logout = useCallback(() => {
+    clearAdminToken()
     setIsAuthenticated(false)
     setTimeRemaining(0)
     toast.success("Logged out successfully")
@@ -65,8 +70,11 @@ export const AuthProvider = ({ children }) => {
     return () => clearInterval(interval)
   }, [timeRemaining, isAuthenticated, logout])
 
-  // Login function
-  const login = useCallback(() => {
+  // Login function — persists the admin JWT after a successful /admin/verify exchange
+  const login = useCallback((token) => {
+    if (token) {
+      setAdminToken(token)
+    }
     setIsAuthenticated(true)
     setTimeRemaining(600) // 10 minutes in seconds
     toast.success("Login successful")

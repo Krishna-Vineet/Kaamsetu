@@ -19,8 +19,10 @@ export const useAuthNavigation = () => {
   const navigate = useNavigate()
   const { isAuthenticated, login: loginFn, logout: logoutFn } = useAuth()
 
-  const login = useCallback(() => {
-    loginFn()
+  const login = useCallback((token) => {
+    // token comes from POST /admin/verify — without it the admin API
+    // has no Bearer credential and every call returns 401.
+    loginFn(token)
     navigate("/dashboard")
   }, [loginFn, navigate])
 

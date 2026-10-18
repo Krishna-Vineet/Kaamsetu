@@ -26,8 +26,9 @@ export const useApi = () => {
 
       const data = await response.json()
 
-      // Session expired or missing: drop back to the login screen.
-      if (response.status === 401 && token) {
+      // Any 401 outside the password check itself means the session is
+      // missing/expired — clear it and drop back to the login screen.
+      if (response.status === 401 && !endpoint.endsWith('/admin/verify')) {
         clearAdminToken()
         toast.error("Session expired. Please sign in again.")
         window.location.href = "/login"

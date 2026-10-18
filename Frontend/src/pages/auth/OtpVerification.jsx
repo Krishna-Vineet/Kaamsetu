@@ -57,8 +57,19 @@ export function OtpVerification() {
   const onSubmit = async (data) => {
     setIsLoading(true);
     setError('');
-    
+
     try {
+      if (from === 'forgot-password') {
+        // Password-reset flow: verify the code, then collect the new password.
+        const response = await authApi.verifyResetOtp({ email, code: data.code });
+        if (response.success) {
+          navigate('/reset-password', {
+            state: { email, resetToken: response.resetToken }
+          });
+        }
+        return;
+      }
+
       const response = await authApi.verifyOtp({
         data: email,
         code: data.code
@@ -67,7 +78,7 @@ export function OtpVerification() {
       if (response.success) {
         // Set user in store
         setUser(response.user);
-        
+
         // Navigate based on role
         if (response.role === 'worker') {
           navigate('/worker/find');
@@ -84,16 +95,22 @@ export function OtpVerification() {
 
   const handleResendOtp = async () => {
     if (!email) return;
-    
+
     try {
-      // For resending OTP, we would need to call register again
-      // This is a simplified approach - in production you might want a separate resend endpoint
+      if (from === 'forgot-password') {
+        await authApi.forgotPassword(email);
+      } else {
+        // Registration flow resends the OTP for the pending account.
+        await authApi.resendOtp(email);
+      }
       setCountdown(60);
       setCanResend(false);
       setValue('code', '');
       setError('');
     } catch (err) {
       setError('Failed to resend OTP. Please try again.');
+      setCountdown(60);
+      setCanResend(false);
     }
   };
 

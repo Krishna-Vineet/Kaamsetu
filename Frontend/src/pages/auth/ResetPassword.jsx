@@ -6,15 +6,20 @@ import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
 import { Label } from '../../components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/card';
+import { authApi } from '../../api/auth';
 import { logo } from '@/assets/assets';
 
 export function ResetPassword() {
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
 
-  // Get email from location state (from OTP verification)
+  // Provided by the OTP verification step (forgot-password flow)
   const email = location.state?.email;
+  const resetToken = location.state?.resetToken;
 
   const {
     register,
@@ -30,19 +35,28 @@ export function ResetPassword() {
 
   const password = watch('password');
 
-  // Redirect if no email provided
+  // Only reachable after OTP verification issued a resetToken
   useEffect(() => {
-    if (!email) {
+    if (!email || !resetToken) {
       navigate('/forgot-password');
     }
-  }, [email, navigate]);
+  }, [email, resetToken, navigate]);
 
-  const onSubmit = (_data) => {
-    // Dummy mode: no API call, just navigate to login
-    navigate('/login');
+  const onSubmit = async (data) => {
+    setIsLoading(true);
+    setError('');
+    try {
+      await authApi.resetPassword({ resetToken, password: data.password });
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 1800);
+    } catch (err) {
+      setError(err.message || 'Unable to reset password. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  if (!email) {
+  if (!email || !resetToken) {
     return null; // Will redirect in useEffect
   }
 
@@ -86,6 +100,17 @@ export function ResetPassword() {
             </CardHeader>
 
             <CardContent className="px-6 sm:px-8">
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm text-red-600 text-center">{error}</p>
+                </div>
+              )}
+              {success ? (
+                <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-center">
+                  <p className="text-green-700 font-medium">Password reset successfully!</p>
+                  <p className="text-sm text-green-600 mt-1">Redirecting you to sign in…</p>
+                </div>
+              ) : (
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
                 {/* New Password */}
                 <div className="space-y-2">
@@ -97,7 +122,15 @@ export function ResetPassword() {
                       type={showPassword ? "text" : "password"}
                       placeholder="Enter your new password"
                       className={`pl-10 pr-10 h-12 rounded-lg border-gray-200 bg-white/80 text-gray-900 placeholder-gray-500 focus:border-[#445FA2] focus:ring-[#445FA2] transition-all duration-200 backdrop-blur-sm ${errors.password ? 'border-red-500' : ''}`}
-                      {...register('password')}
+                      {...register('password', {
+                        required: 'Password is required',
+                        minLength: { value: 8, message: 'Must be at least 8 characters' },
+                        validate: {
+                          hasUpper: (v) => /[A-Z]/.test(v) || 'Needs an uppercase letter',
+                          hasLower: (v) => /[a-z]/.test(v) || 'Needs a lowercase letter',
+                          hasNumber: (v) => /\d/.test(v) || 'Needs a number'
+                        }
+                      })}
                     />
                     <button
                       type="button"
@@ -129,11 +162,13 @@ export function ResetPassword() {
 
                 <Button
                   type="submit"
-                  className="w-full h-12 bg-gradient-to-r from-[#445FA2] to-[#009889] hover:from-[#445FA2]/90 hover:to-[#009889]/90 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5"
+                  disabled={isLoading}
+                  className="w-full h-12 bg-gradient-to-r from-[#445FA2] to-[#009889] hover:from-[#445FA2]/90 hover:to-[#009889]/90 text-white rounded-lg font-medium transition-all duration-200 hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-60"
                 >
-                  Reset Password
+                  {isLoading ? 'Resetting…' : 'Reset Password'}
                 </Button>
               </form>
+              )}
 
               <div className="mt-6 text-center">
                 <p className="text-gray-600">

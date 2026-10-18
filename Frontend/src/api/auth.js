@@ -155,6 +155,100 @@ export const authApi = {
     }
   },
 
+  // Resend a registration OTP for a pending (unverified) account
+  resendOtp: async (email) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/resend-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: email })
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Unable to resend code. Please try again.');
+      }
+      return responseData;
+    } catch (error) {
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to the server. Please check your internet connection.');
+      }
+      throw error;
+    }
+  },
+
+  // Request a password-reset OTP
+  forgotPassword: async (email) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Unable to send reset code. Please try again.');
+      }
+      return responseData;
+    } catch (error) {
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to the server. Please check your internet connection.');
+      }
+      throw error;
+    }
+  },
+
+  // Verify a password-reset OTP and receive a short-lived resetToken
+  verifyResetOtp: async ({ email, code }) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/verify-reset-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ data: email, code })
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        let errorMessage = responseData.message || 'OTP verification failed';
+        if (responseData.message?.includes('expired')) {
+          errorMessage = 'This OTP has expired. Please request a new one.';
+        } else if (responseData.message?.includes('incorrect')) {
+          errorMessage = responseData.message;
+        }
+        throw new Error(errorMessage);
+      }
+      return responseData;
+    } catch (error) {
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to the server. Please check your internet connection.');
+      }
+      throw error;
+    }
+  },
+
+  // Set a new password using the resetToken from verifyResetOtp
+  resetPassword: async ({ resetToken, password }) => {
+    try {
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ resetToken, password })
+      });
+
+      const responseData = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Unable to reset password. Please try again.');
+      }
+      return responseData;
+    } catch (error) {
+      if (error.name === 'TypeError' && error.message === 'Failed to fetch') {
+        throw new Error('Unable to connect to the server. Please check your internet connection.');
+      }
+      throw error;
+    }
+  },
+
   // Refresh token
   refreshToken: async () => {
     try {

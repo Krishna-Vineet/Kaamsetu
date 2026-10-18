@@ -27,8 +27,8 @@ const Login = () => {
         body: JSON.stringify({ password }),
       })
 
-      if (response.success && response.isMatch) {
-        login()
+      if (response.success && response.isMatch && response.token) {
+        login(response.token)
       } else {
         toast.error("Invalid password")
       }

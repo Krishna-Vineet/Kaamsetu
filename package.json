@@ -1,0 +1,19 @@
+{
+  "name": "kaamsetu",
+  "version": "2.0.0",
+  "description": "KaamSetu — India's hyperlocal skilled-worker marketplace. Monorepo: web app, admin dashboard and REST API.",
+  "private": true,
+  "author": "Vineet (https://github.com/Krishna-Vineet)",
+  "license": "MIT",
+  "scripts": {
+    "setup": "npm --prefix Backend install && npm --prefix Frontend install && npm --prefix Admin install",
+    "dev:api": "npm --prefix Backend run dev",
+    "dev:web": "npm --prefix Frontend run dev",
+    "dev:admin": "npm --prefix Admin run dev",
+    "build": "npm --prefix Frontend run build && npm --prefix Admin run build",
+    "start": "npm --prefix Backend start"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

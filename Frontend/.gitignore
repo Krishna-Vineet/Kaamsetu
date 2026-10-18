@@ -48,8 +48,6 @@ public/uploads/
 coverage/
 *.tgz
 
-# Lockfiles for local dev
-.env.example
 
 # Ensure secrets in config
 server/uploads/

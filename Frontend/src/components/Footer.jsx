@@ -63,8 +63,19 @@ export default function Footer() {
               </ul>
             </div>
           </div>
-          <div className="border-t border-gray-700 pt-8 text-center text-gray-300">
-            <p>&copy; 2024 KaamSetu. All rights reserved.</p>
+          <div className="border-t border-gray-700 pt-8 text-center text-gray-300 space-y-2">
+            <p>&copy; {new Date().getFullYear()} KaamSetu. All rights reserved.</p>
+            <p className="text-sm text-gray-400">
+              Made with <span className="text-[#009889]">♥</span> by{' '}
+              <a
+                href="https://github.com/Krishna-Vineet"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-[#009889] hover:text-[#445FA2] transition-colors duration-200"
+              >
+                Vineet
+              </a>
+            </p>
           </div>
         </div>
       </footer>

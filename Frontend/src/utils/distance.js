@@ -14,10 +14,16 @@ export const calculateHaversineDistance = (lat1, lon1, lat2, lon2) => {
   return Math.round(distance * 10) / 10; // Round to 1 decimal place
 };
 
-// OpenRouteService API for more accurate road distances
-const ORS_API_KEY = import.meta.env.REACT_APP_ORS_API_KEY || '5b3ce3597851110001cf6248a1c4c7b1d8c04c8e8b8f4c4c4c4c4c4c'; // Free tier key
+// OpenRouteService API for more accurate road distances.
+// NOTE: never hardcode API keys here — set VITE_ORS_API_KEY in your env.
+// If the key is missing we silently fall back to Haversine (straight-line) distance.
+const ORS_API_KEY = import.meta.env.VITE_ORS_API_KEY;
 
 export const calculateRoadDistance = async (startLat, startLon, endLat, endLon) => {
+  if (!ORS_API_KEY) {
+    return calculateHaversineDistance(startLat, startLon, endLat, endLon);
+  }
+
   try {
     // Use OpenRouteService Directions API
     const response = await fetch(`https://api.openrouteservice.org/v2/directions/driving-car?api_key=${ORS_API_KEY}&start=${startLon},${startLat}&end=${endLon},${endLat}`);

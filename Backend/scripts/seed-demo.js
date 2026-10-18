@@ -154,10 +154,11 @@ async function seed() {
   console.log(`👷 Created ${workerDocs.length + 2} workers (2 aadhaar pending → admin verification queue)`);
 
   // 3) Clients
+  // Client #0 (Rohan) doubles as the memorable demo login — same convention as v1.
   const clientDocs = await Client.create(await Promise.all(clients.map(
-    async ([name, slug, area, aadhaarState]) => new Client({
+    async ([name, slug, area, aadhaarState], i) => new Client({
       name,
-      email: { email: `${slug}@${DEMO_DOMAIN}`, verified: true },
+      email: { email: `${i === 0 ? 'demo.client' : slug}@${DEMO_DOMAIN}`, verified: true },
       phone: { phone: ph(), verified: true },
       aadhaar: aadhaarFor(aadhaarState, aadhaarState === 'pending'
         ? 'https://res.cloudinary.com/demo/image/upload/sample.jpg' : undefined),

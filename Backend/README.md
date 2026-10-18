@@ -11,6 +11,7 @@ Node.js + Express + Mongoose REST API for the KaamSetu platform.
 
 ```bash
 cp .env.example .env    # fill in values (every option is annotated)
+npm run env:check       # ✅ audits your .env — typos, smart quotes, missing keys
 npm install
 npm run dev             # nodemon, http://localhost:5000
 npm start               # plain node

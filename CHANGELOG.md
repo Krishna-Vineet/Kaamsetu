@@ -3,6 +3,17 @@
 All notable changes to KaamSetu are documented here.
 Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## Unreleased
+
+### ✨ Added
+
+- **`npm run env:check`** — env doctor (`Backend/scripts/check-env.mjs`) that
+  audits `Backend/.env` exactly as the server loads it: per-variable status
+  with masked values, plus forensics for the classic setup killers (`.env` in
+  the wrong folder, UTF-8 BOM, smart “quotes” from Windows editors, and
+  unrecognised/typo'd variable names like `MONGO_URI`).
+- Boot failure message now points at `env:check` and lists the common causes.
+
 ## [2.1.0] — 2026-10-18 — "Zero-Cost Demo Mode" 📬
 
 ### ✨ Added

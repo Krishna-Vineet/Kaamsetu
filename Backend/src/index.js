@@ -32,7 +32,9 @@ const REQUIRED_ENV = ['MONGODB_URI', 'JWT_SECRET'];
 const missingEnv = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missingEnv.length > 0) {
   console.error(`❌ Missing required environment variables: ${missingEnv.join(', ')}`);
-  console.error('   Copy .env.example to .env and fill in the values.');
+  console.error('   Run  npm run env:check  — it audits your Backend/.env and shows exactly what is wrong.');
+  console.error('   (The .env file must live in this Backend/ folder, next to package.json.');
+  console.error('    On Windows, watch out for smart quotes (“ ”) pasted from editors.)');
   process.exit(1);
 }
 if (process.env.JWT_SECRET.length < 32) {
